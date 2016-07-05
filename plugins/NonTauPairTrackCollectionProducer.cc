@@ -1,11 +1,10 @@
 /* class PFTauPrimaryVertexProducer
  * EDProducer of the 
  * authors: R. Caspart <rcaspart@cern.ch>
- * This producer is intended to select a from a collection of Tracks originating from a
+ * This producer is intended to select from a collection of Tracks originating from a
  * primary vertex those which are not associated to a tau-lepton or its decay products
  * Thanks goes to Andrew Gilbert and Roger Wolf for their help and suggestions.
  */
-
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -54,102 +53,147 @@ class NonTauPairTrackCollectionProducer : public EDProducer {
   ~NonTauPairTrackCollectionProducer();
   virtual void produce(edm::Event&,const edm::EventSetup&);
  private:
-  edm::InputTag GenParticleTag_;
-  edm::InputTag TauPairTag_;
-  edm::InputTag PVTag_;
+  edm::InputTag cands_;
+  edm::InputTag lostCands_;
+  edm::InputTag genCands_;
+  edm::InputTag taus_;
+  bool useTauTracks_;
+  bool useLostCands_;
+  double deltaRMatch;
   double deltaRThreshold;
-  bool MCSamples_;
 };
 
 NonTauPairTrackCollectionProducer::NonTauPairTrackCollectionProducer(const edm::ParameterSet& iConfig):
-  GenParticleTag_(iConfig.getParameter<edm::InputTag>("GenParticles")),
-  TauPairTag_(iConfig.getParameter<edm::InputTag>("TauPairTag")),
-  PVTag_(iConfig.getParameter<edm::InputTag>("PVTag")),
-  deltaRThreshold(iConfig.getParameter<double>("deltaRThreshold"))
+
+	cands_(consumes<edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("src"))),
+	lostCands_(consumes<edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("lostSrc"))),
+	genCands_(consumes<edm::View<pat::PackedGenParticle> >(iConfig.getParameter<edm::InputTag>("genSrc"))),
+	taus_(consumes<std::vector<pat::Tau> >(iConfig.getParameter<edm::InputTag>("taus"))),
+	useLostCands_(iConfig.getParameter<bool>("useLostCands")),
+	useTauTracks_(iConfig.getUntrackedParameter<bool>("useTauTracks",false)),
+	deltaRMatch(iConfig.getParameter<double>("deltaRMatch")),
+	deltaRThreshold(iConfig.getParameter<double>("deltaRThreshold")),
+
 {
-  produces<std::vector<reco::Track>>(); 
-  produces<int>();
-  //produces<TrackCollection>("NonTauPairTrackCollection"); 
+  //produces<std::vector<reco::Track>>(); 
+  produces<reco::TrackCollection>("NonTauPairTrackCollection");
 }
 
 NonTauPairTrackCollectionProducer::~NonTauPairTrackCollectionProducer(){
 }
 
+
 void NonTauPairTrackCollectionProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
-  // Obtain Collections
 
-  //edm::Handle<std::vector<reco::Candidate> > GenParticles;
-  edm::Handle<std::vector<reco::GenParticle> > GenParticles;
-  iEvent.getByLabel(GenParticleTag_,GenParticles);
+	// get collections
+	edm::Handle<edm::View<pat::PackedCandidate> > cands;
+	iEvent.getByToken(cands_, cands);
+	edm::Handle<edm::View<pat::PackedCandidate> > lostCands;
+	iEvent.getByToken(lostCands_, lostCands);
+	edm::Handle<edm::View<pat::PackedGenParticle> > genCands;
+	iEvent.getByToken(genCands_, genCands);
+	edm::Handle<wdm::View<pat::Tau> > taus;
+	iEvent.getByToken(taus_, taus);
 
-  edm::Handle<std::vector<reco::PFTau> > PFTau;
-  iEvent.getByLabel(TauPairTag_,PFTau);
+	int vtxIdx = 0;  // AOD PV
+	reco::TrackCollection nonTauTracks;
+	edm::View<pat::PackedGenParticle> GenTauPair;
 
-  edm::Handle<reco::VertexCollection > PV;
-  iEvent.getByLabel(PVTag_,PV);
+	// select the tau pair to consider:
+	// find the gen tau pair
+	// and find the PF tau pair that matches the gen tau pair
+	edm::View<pat::PackedGenParticle> GenTauPair;
+	edm::View<pat::Tau> PFTauPair;
 
+	// select gen tau pair
+	for (edm::View<pat::PackedGenParticle>::const_iterator Part=genCands->begin(); Part!=genCands->end(); ++Part){
+		if (Part->charge()==0) continue;
+		if (abs(Part->pdgId())==15 && 
+			(Part->mother()->pdgId()==25 || Part->mother()->pdgId()==23 || Part->mother()->pdgId()==22 Part->mother()->pdgId()==36)){
+			GenTauPair.push_back(*Part);
+		} // if pdgId and mother-pdgId
+	} // for Part=genCands
 
-  // Select tau-pair to consider
-  std::auto_ptr<int> nonMatchingTaus(new int(0));
-  std::vector<reco::GenParticle> TauPair;
-  reco::Vertex thePV = PV->front();
-  double Threshold = 0.1;
-  //std::cout << thePV.position() << std::endl;
-  for (std::vector<reco::GenParticle>::const_iterator Part = GenParticles->begin();  Part != GenParticles->end(); Part++)
-  {
-    if(abs(Part->pdgId()) == 15 && (Part->mother()->pdgId()==25 || Part->mother()->pdgId()==23 || Part->mother()->pdgId()==22 || Part->mother()->pdgId()==36))
-	{
-	  TauPair.push_back(*Part);
-	  if(abs(Part->vx() - thePV.x()) > Threshold || abs(Part->vy() - thePV.y()) > Threshold || abs(Part->vz() - thePV.z()) > Threshold) (*nonMatchingTaus) += 1;
-	  //std::cout << (*Part).vertex() << std::endl;
-	  //std::cout << *Part.vx() << " " << *Part.vy() << " " << *Part.vz() <<std::endl;
-	}
-  }
-  //std::cout << std::endl;
-  //assert(TauPair.size()>2);
-  std::vector<reco::PFTau> PFTauPair;
-  for (std::vector<reco::PFTau>::const_iterator Part = PFTau->begin();  Part != PFTau->end(); Part++)
-  {
-  	for (std::vector<reco::GenParticle>::const_iterator iPart = TauPair.begin();  iPart != TauPair.end(); iPart++)
-  	{
-	  if(reco::deltaR(*Part,*iPart) < deltaRThreshold)
-	  {
-	    PFTauPair.push_back(*Part);
-	  }
-	}
-  }
-  
-  std::vector<reco::TrackBaseRef> TauPairTracks;
-    for(std::vector<reco::PFTau>::const_iterator Part = PFTauPair.begin(); Part != PFTauPair.end(); Part++) {
-      //reco::Vertex thePV = PV->front();
-	  ///////////////////////////////////////////////////////////////////////////////////////////////
-  	  // Get tracks from PFTau daugthers
-#if CMSSW_MAJOR_VERSION >= 7
-	  const std::vector<edm::Ptr<reco::PFCandidate> > cands = (*Part).signalPFChargedHadrCands();
-	  for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); iter++){
-#else
-	  const edm::RefVector<std::vector<reco::PFCandidate> > cands = (*Part).signalPFChargedHadrCands();
-	  for(edm::RefVector<std::vector<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); iter++){
-#endif
-	    if(iter->get()->trackRef().isNonnull()) TauPairTracks.push_back(reco::TrackBaseRef(iter->get()->trackRef()));
-	    else if(iter->get()->gsfTrackRef().isNonnull()){TauPairTracks.push_back(reco::TrackBaseRef(((iter)->get()->gsfTrackRef())));}
-	  }
-	}
-	  ///////////////////////////////////////////////////////////////////////////////////////////////
-	  // Get Non-Tau tracks
-      std::auto_ptr<std::vector<reco::Track>>  nonTauTracks(new TrackCollection);
-	  for(std::vector<reco::TrackBaseRef>::const_iterator vtxTrkRef=thePV.tracks_begin();vtxTrkRef<thePV.tracks_end();vtxTrkRef++){
-	    bool nonTauTrackFlag = true;
-	    //if(TauPairTracks.size() == 0) nonTauTracks->push_back(**vtxTrkRef);
-	    for (unsigned int sigTrk = 0; sigTrk < TauPairTracks.size(); sigTrk++) {
-	      if((*vtxTrkRef)==TauPairTracks[sigTrk] ){
-	        nonTauTrackFlag = false;
-			//nonTauTracks->push_back(**vtxTrkRef);
-	      }
-        }
-		if(nonTauTrackFlag) nonTauTracks->push_back(**vtxTrkRef);
-	  }
-    iEvent.put(nonTauTracks);
-	iEvent.put(nonMatchingTaus);
+	assert(GenTauPair.push_back(*Part);
+
+	// select PF tau pair that matches the gen tau pair within a threshold deltaRMatch
+	for (edm::View<pat::Tau>::const_iterator Part=taus->begin(); Part!=taus->end(); ++Part){
+		for (edm::View<pat::PackedGenParticle>::const_iterator iPart=GenTauPair->begin(); iPart!=GenTauPair->end(); ++iPart){
+			if (deltaR(*Part, *iPart)<deltaRMatch){
+				PFTauPair.push_back(*Part);
+			} // if deltaRMatch
+		} // for iPart=GenTauPair
+	} // for Part=taus
+
+	// skip tau pair tracks
+	// loop over cands
+	for (edm::View<pat::PackedCandidate>::const_iterator Part=cands->begin(); Part!=cands->end(); ++Part){
+		if (Part->charge()==0 || Part->vertexRef()->isNull()) continue;
+		if (!(Part->bestTrack())) continue;
+
+		bool skipTrack = false;
+
+		if(!useTauTracks_){
+			if (PFTauPair->at(0) && PFTauPair->at(1)){
+				// loop over PF tau pair
+				for (edm::View<pat::Tau>::const_iterator tauPart=PFTauPair->begin(); tauPart!=PFTauPair->end(); ++tauPart){
+					std::vector<edm::View<pat::PackedCandidate> > hadrCands = Part->signalChargedHadrCands();
+
+					//loop over hadrons daughters
+					for (std::vector<edm::View<pat::PackedCandidate> > hadrPart=){
+						if (deltaR(*hadrPart, *Part)<deltaRThreshold){
+							skipTrack = true;
+						} // if deltaRThreshold
+					} // for hadrPart=hadrCands
+				} // for tauPart=PFTauPair
+			} // if PFTauPair
+		} // if !useTauTracks
+
+	if (skipTrack) continue;
+
+	int key = Part->vertexRef().key();
+	int quality = Part->pvAssociationQuality();
+
+	if (key!=vtxIdx || (quality!=pat::PackedCandidate::UsedInFitTight && quality!=pat::PackedCandidate::UsedInFitLoose)) continue;
+
+	nonTauTracks.push_back(*(Part->bestTrack()));
+	} // for Part=cands
+
+	// loop over lostCands
+	if (useLostCands_){
+		for (edm::View<pat::PackedCandidate>::const_iterator Part=lostCands->begin(); Part!=lostCands->end(); ++Part){
+			if (Part->charge()==0 || Part->vertexRef()->isNull()) continue;
+			if (!(Part->bestTrack())) continue;
+	
+			bool skipTrack = false;
+	
+			if(!useTauTracks_){
+				if (PFTauPair->at(0) && PFTauPair->at(1)){
+					// loop over PF tau pair
+					for (edm::View<pat::Tau>::const_iterator tauPart=PFTauPair->begin(); tauPart!=PFTauPair->end(); ++tauPart){
+						std::vector<edm::View<pat::PackedCandidate> > hadrCands = Part->signalChargedHadrCands();
+	
+						//loop over hadrons daughters
+						for (std::vector<edm::View<pat::PackedCandidate> > hadrPart=){
+							if (deltaR(*hadrPart, *Part)<deltaRThreshold){
+								skipTrack = true;
+							} // if deltaRThreshold
+						} // for hadrPart=hadrCands
+					} // for tauPart=PFTauPair
+				} // if PFTauPair
+			} // if !useTauTracks
+	
+		if (skipTrack) continue;
+	
+		int key = Part->vertexRef().key();
+		int quality = Part->pvAssociationQuality();
+	
+		if (key!=vtxIdx || (quality!=pat::PackedCandidate::UsedInFitTight && quality!=pat::PackedCandidate::UsedInFitLoose)) continue;
+	
+		nonTauTracks.push_back(*(Part->bestTrack()));
+		} // for Part=lostCands
+	} // if useLostCands
+
+	iEvent.put(nonTauTracks);
 }
 DEFINE_FWK_MODULE(NonTauPairTrackCollectionProducer);

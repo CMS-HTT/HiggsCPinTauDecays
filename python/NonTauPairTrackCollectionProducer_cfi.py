@@ -1,9 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-NonTauPairTrackCollectionProducer = cms.EDProducer("NonTauPairTrackCollectionProducer",
-												   GenParticles = cms.InputTag("genParticles"),
-												   TauPairTag = cms.InputTag("hpsPFTauProducer"),
-												   PVTag = cms.InputTag("offlinePrimaryVertices"),
-												   deltaRThreshold = cms.double(0.5)
-												   )
+NonTauPairTrackCollectionProducer = cms.EDProducer(
+	"NonTauPairTrackCollectionProducer",
+	src = cms.InputTag("packedPFCandidates"),
+	lostSrc = cms.InputTag("lostTracks"),
+	genSrc = cms.InputTag("packedGenParticles"),
+	taus = cms.InputTag("slimmedTaus"),
+	useLostCands = cms.bool(False),
+	useTauTracks = cms.untracked.bool(False),
+	deltaRMatch = cms.double(),
+	deltaRThreshold = cms.double(),
+)
 
