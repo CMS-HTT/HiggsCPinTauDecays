@@ -82,17 +82,18 @@ void RefitVertexProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSet
 
 	bool fitOk(true);
 	if ( transTracks.size() >= 3 ) {
-	  AdaptiveVertexFitter avf;
-	  avf.setWeightThreshold(0.1); // weight per track. allow almost every fit, else --> exception
-	  try {
-	    if ( !useBeamSpot_ ){
-	      transVtxNoBS = avf.vertex(transTracks);
-	    } else {
-	      transVtx = avf.vertex(transTracks, *beamSpot);
-	    }
-	  } catch (...) {
-	    fitOk = false;
-	  }
+		AdaptiveVertexFitter avf;
+		avf.setWeightThreshold(0.1); // weight per track. allow almost every fit, else --> exception
+		try {
+			transVtxNoBS = avf.vertex(transTracks);
+			if ( !useBeamSpot_ ){
+				transVtx = transVtxNoBS;
+			} else {
+				transVtx = avf.vertex(transTracks, *beamSpot);
+			}
+		} catch (...) {
+			fitOk = false;
+		}
 	} else FitOk = false;
 	if ( fitOk ) {
 		RefitVertexNoBSCollection->push_back(transVtxNoBS);

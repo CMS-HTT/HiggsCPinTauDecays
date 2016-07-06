@@ -5,7 +5,7 @@ RefitVertexProducer = cms.EDProducer(
 	"RefitVertexProducer",
 	TrackCollection = cms.InputTag("NonTauPairTrackCollectionProducer"),
 	beamSpot = cms.InputTag("offlineBeamSpot"),
-	useBeamSpot = cms.bool(False)
+	useBeamSpot = cms.bool(True)
 )
 
 RefitVertex = cms.Sequence(NonTauPairTrackCollectionProducer*RefitVertexProducer)
