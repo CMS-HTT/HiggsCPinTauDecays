@@ -5,6 +5,7 @@
  * Thanks goes to Andrew Gilbert and Roger Wolf for their help and suggestions.
  */
 
+
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -38,15 +39,15 @@ class RefitVertexProducer : public EDProducer {
   ~RefitVertexProducer();
   virtual void produce(edm::Event&,const edm::EventSetup&);
  private:
-  edm::InputTag TrackCollection_;
-  edm::InputTag beamSpot_;
+  edm::InputTag beamSpotTag_;
+  edm::InputTag TrackCollectionTag_;
   bool useBeamSpot_;
 };
 
 RefitVertexProducer::RefitVertexProducer(const edm::ParameterSet& iConfig):
-	TrackCollection_(iConfig.getParameter<edm::InputTag>("TrackCollection")),
-	beamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
-	useBeamSpot_(iConfig.getParameter<bool>("useBeamSpot")),
+  beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpot")),
+  TrackCollectionTag_(iConfig.getParameter<edm::InputTag>("TrackCollectionTag")),
+  useBeamSpot_(iConfig.getParameter<bool>("useBeamSpot"))
 {
   produces<VertexCollection>(); 
 
@@ -57,50 +58,41 @@ RefitVertexProducer::~RefitVertexProducer(){
 }
 
 void RefitVertexProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
+  // Obtain Collections
+  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
+ 
+  edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByLabel(beamSpotTag_,beamSpot);
 
+  edm::Handle<reco::TrackCollection> trackCollection;
+  iEvent.getByLabel(TrackCollectionTag_,trackCollection);
 
-	// get collections
-	edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
-
-	edm::Handle<reco::TrackCollection> trackCollection;
-	iEvent.getByToken(TrackCollection_, trackCollection);
-
-	edm::Handle<reco::BeamSpot> beamSpot;
-	if (useBeamSpot_) iEvent.getByToken.(beamSpot_, beamSpot);
-
-	std::auto_ptr<VertexCollection> RefitVertexNoBSCollection = std::auto_ptr<VertexCollection>(new VertexCollection);
-	std::auto_ptr<VertexCollection> RefitVertexCollection = std::auto_ptr<VertexCollection>(new VertexCollection);
-
-
+  std::auto_ptr<VertexCollection>  VertexCollection_out= std::auto_ptr<VertexCollection>(new VertexCollection);
+  //reco::VertexCollection VertexCollection_out;
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Refit the vertex
-	TransientVertex transVtx, transVtxNoBS;
+	TransientVertex transVtx;
 	std::vector<reco::TransientTrack> transTracks;
 	for (std::vector<reco::Track>::const_iterator iter=trackCollection->begin(); iter!=trackCollection->end(); ++iter){
 	  transTracks.push_back(transTrackBuilder->build(*iter));
 	}
-
-	bool fitOk(true);
+	bool FitOk(true);
 	if ( transTracks.size() >= 3 ) {
-		AdaptiveVertexFitter avf;
-		avf.setWeightThreshold(0.1); // weight per track. allow almost every fit, else --> exception
-		try {
-			transVtxNoBS = avf.vertex(transTracks);
-			if ( !useBeamSpot_ ){
-				transVtx = transVtxNoBS;
-			} else {
-				transVtx = avf.vertex(transTracks, *beamSpot);
-			}
-		} catch (...) {
-			fitOk = false;
-		}
+	  AdaptiveVertexFitter avf;
+	  avf.setWeightThreshold(0.1); //weight per track. allow almost every fit, else --> exception
+	  try {
+	    if ( !useBeamSpot_ ){
+	      transVtx = avf.vertex(transTracks);
+	    } else {
+	      transVtx = avf.vertex(transTracks, *beamSpot);
+	    }
+	  } catch (...) {
+	    FitOk = false;
+	  }
 	} else FitOk = false;
-	if ( fitOk ) {
-		RefitVertexNoBSCollection->push_back(transVtxNoBS);
-		RefitVertexCollection->push_back(transVtx);
-	}
-  iEvent.put(RefitVertexNoBSCollection);
-  iEvent.put(RefitVertexCollection);
+	if ( FitOk ) VertexCollection_out->push_back(transVtx);
+  iEvent.put(VertexCollection_out);
 }
   
 DEFINE_FWK_MODULE(RefitVertexProducer);
