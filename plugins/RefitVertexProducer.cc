@@ -94,5 +94,4 @@ void RefitVertexProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSet
 	if ( FitOk ) VertexCollection_out->push_back(transVtx);
   iEvent.put(VertexCollection_out);
 }
-  
 DEFINE_FWK_MODULE(RefitVertexProducer);
