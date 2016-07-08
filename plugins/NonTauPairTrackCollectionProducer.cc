@@ -124,13 +124,13 @@ void NonTauPairTrackCollectionProducer::produce(edm::Event& iEvent,const edm::Ev
       //reco::Vertex thePV = PV->front();
 	  ///////////////////////////////////////////////////////////////////////////////////////////////
   	  // Get tracks from PFTau daugthers
-#if CMSSW_MAJOR_VERSION >= 7
+//#if CMSSW_MAJOR_VERSION >= 7
 	  const std::vector<edm::Ptr<reco::PFCandidate> > cands = (*Part).signalPFChargedHadrCands();
 	  for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); iter++){
-#else
-	  const edm::RefVector<std::vector<reco::PFCandidate> > cands = (*Part).signalPFChargedHadrCands();
-	  for(edm::RefVector<std::vector<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); iter++){
-#endif
+//#else
+//	  const edm::RefVector<std::vector<reco::PFCandidate> > cands = (*Part).signalPFChargedHadrCands();
+//	  for(edm::RefVector<std::vector<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); iter++){
+//#endif
 	    if(iter->get()->trackRef().isNonnull()) TauPairTracks.push_back(reco::TrackBaseRef(iter->get()->trackRef()));
 	    else if(iter->get()->gsfTrackRef().isNonnull()){TauPairTracks.push_back(reco::TrackBaseRef(((iter)->get()->gsfTrackRef())));}
 	  }
