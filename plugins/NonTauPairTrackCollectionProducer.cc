@@ -1,8 +1,8 @@
 /* class PFTauPrimaryVertexProducer
  * EDProducer of the 
  * authors: R. Caspart <rcaspart@cern.ch>
- * This producer is intended to select a from a collection of Tracks originating from a
- * primary vertex those which are not associated to a tau-lepton or its decay products
+ * This producer is intended to select from a collection of Tracks originating from a
+ * primary vertex those tracks which are not associated to a tau-lepton or its decay products
  * Thanks goes to Andrew Gilbert and Roger Wolf for their help and suggestions.
  */
 
@@ -33,6 +33,10 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
+
 #include "DataFormats/Common/interface/RefProd.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
@@ -55,7 +59,7 @@ class NonTauPairTrackCollectionProducer : public EDProducer {
   virtual void produce(edm::Event&,const edm::EventSetup&);
  private:
   edm::EDGetTokenT<std::vector<reco::GenParticle> > GenParticleTag_;
-  edm::EDGetTokenT<std::vector<reco::PFTau> > TauPairTag_;
+  edm::EDGetTokenT<std::vector<pat::Tau> > TauPairTag_;
   edm::EDGetTokenT<reco::VertexCollection > PVTag_;
   double deltaRThreshold;
   bool MCSamples_;
@@ -65,8 +69,8 @@ NonTauPairTrackCollectionProducer::NonTauPairTrackCollectionProducer(const edm::
   //GenParticleTag_(iConfig.getParameter<edm::InputTag>("GenParticles")),
   //TauPairTag_(iConfig.getParameter<edm::InputTag>("TauPairTag")),
   //PVTag_(iConfig.getParameter<edm::InputTag>("PVTag")),
-  GenParticleTag_(consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("GenParticles"))),
-  TauPairTag_(consumes<std::vector<reco::PFTau> >(iConfig.getParameter<edm::InputTag>("TauPairTag"))),
+  GenParticleTag_(consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("GenParticlesTag"))),
+  TauPairTag_(consumes<std::vector<pat::Tau> >(iConfig.getParameter<edm::InputTag>("TauPairTag"))),
   PVTag_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("PVTag"))),
   deltaRThreshold(iConfig.getParameter<double>("deltaRThreshold"))
 {
@@ -85,7 +89,7 @@ void NonTauPairTrackCollectionProducer::produce(edm::Event& iEvent,const edm::Ev
   edm::Handle<std::vector<reco::GenParticle> > GenParticles;
   iEvent.getByToken(GenParticleTag_,GenParticles);
 
-  edm::Handle<std::vector<reco::PFTau> > PFTau;
+  edm::Handle<std::vector<pat::Tau> > PFTau;
   iEvent.getByToken(TauPairTag_,PFTau);
 
   edm::Handle<reco::VertexCollection> PV;
@@ -110,8 +114,8 @@ void NonTauPairTrackCollectionProducer::produce(edm::Event& iEvent,const edm::Ev
   }
   //std::cout << std::endl;
   //assert(TauPair.size()>2);
-  std::vector<reco::PFTau> PFTauPair;
-  for (std::vector<reco::PFTau>::const_iterator Part = PFTau->begin();  Part != PFTau->end(); Part++)
+  std::vector<pat::Tau> PFTauPair;
+  for (std::vector<pat::Tau>::const_iterator Part = PFTau->begin();  Part != PFTau->end(); Part++)
   {
   	for (std::vector<reco::GenParticle>::const_iterator iPart = TauPair.begin();  iPart != TauPair.end(); iPart++)
   	{
@@ -123,7 +127,7 @@ void NonTauPairTrackCollectionProducer::produce(edm::Event& iEvent,const edm::Ev
   }
   
   std::vector<reco::TrackBaseRef> TauPairTracks;
-    for(std::vector<reco::PFTau>::const_iterator Part = PFTauPair.begin(); Part != PFTauPair.end(); Part++) {
+    for(std::vector<pat::Tau>::const_iterator Part = PFTauPair.begin(); Part != PFTauPair.end(); Part++) {
       //reco::Vertex thePV = PV->front();
 	  ///////////////////////////////////////////////////////////////////////////////////////////////
   	  // Get tracks from PFTau daugthers
