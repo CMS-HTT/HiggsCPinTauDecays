@@ -39,17 +39,19 @@ class RefitVertexProducer : public EDProducer {
   ~RefitVertexProducer();
   virtual void produce(edm::Event&,const edm::EventSetup&);
  private:
-  edm::InputTag beamSpotTag_;
-  edm::InputTag TrackCollectionTag_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
+  edm::EDGetTokenT<reco::TrackCollection> TrackCollectionTag_;
   bool useBeamSpot_;
 };
 
 RefitVertexProducer::RefitVertexProducer(const edm::ParameterSet& iConfig):
-  beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpot")),
-  TrackCollectionTag_(iConfig.getParameter<edm::InputTag>("TrackCollectionTag")),
+  //beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpot")),
+  //TrackCollectionTag_(iConfig.getParameter<edm::InputTag>("TrackCollectionTag")),
+  beamSpotTag_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+  TrackCollectionTag_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackCollectionTag"))),
   useBeamSpot_(iConfig.getParameter<bool>("useBeamSpot"))
 {
-  produces<VertexCollection>(); 
+  produces<VertexCollection>();
 
 }
 
@@ -63,10 +65,10 @@ void RefitVertexProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSet
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
  
   edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByLabel(beamSpotTag_,beamSpot);
+  iEvent.getByToken(beamSpotTag_,beamSpot);
 
   edm::Handle<reco::TrackCollection> trackCollection;
-  iEvent.getByLabel(TrackCollectionTag_,trackCollection);
+  iEvent.getByToken(TrackCollectionTag_,trackCollection);
 
   std::auto_ptr<VertexCollection>  VertexCollection_out= std::auto_ptr<VertexCollection>(new VertexCollection);
   //reco::VertexCollection VertexCollection_out;

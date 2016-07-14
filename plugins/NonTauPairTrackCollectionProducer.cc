@@ -54,17 +54,20 @@ class NonTauPairTrackCollectionProducer : public EDProducer {
   ~NonTauPairTrackCollectionProducer();
   virtual void produce(edm::Event&,const edm::EventSetup&);
  private:
-  edm::InputTag GenParticleTag_;
-  edm::InputTag TauPairTag_;
-  edm::InputTag PVTag_;
+  edm::EDGetTokenT<std::vector<reco::GenParticle> > GenParticleTag_;
+  edm::EDGetTokenT<std::vector<reco::PFTau> > TauPairTag_;
+  edm::EDGetTokenT<reco::VertexCollection > PVTag_;
   double deltaRThreshold;
   bool MCSamples_;
 };
 
 NonTauPairTrackCollectionProducer::NonTauPairTrackCollectionProducer(const edm::ParameterSet& iConfig):
-  GenParticleTag_(iConfig.getParameter<edm::InputTag>("GenParticles")),
-  TauPairTag_(iConfig.getParameter<edm::InputTag>("TauPairTag")),
-  PVTag_(iConfig.getParameter<edm::InputTag>("PVTag")),
+  //GenParticleTag_(iConfig.getParameter<edm::InputTag>("GenParticles")),
+  //TauPairTag_(iConfig.getParameter<edm::InputTag>("TauPairTag")),
+  //PVTag_(iConfig.getParameter<edm::InputTag>("PVTag")),
+  GenParticleTag_(consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("GenParticles"))),
+  TauPairTag_(consumes<std::vector<reco::PFTau> >(iConfig.getParameter<edm::InputTag>("TauPairTag"))),
+  PVTag_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("PVTag"))),
   deltaRThreshold(iConfig.getParameter<double>("deltaRThreshold"))
 {
   produces<std::vector<reco::Track>>(); 
@@ -80,13 +83,13 @@ void NonTauPairTrackCollectionProducer::produce(edm::Event& iEvent,const edm::Ev
 
   //edm::Handle<std::vector<reco::Candidate> > GenParticles;
   edm::Handle<std::vector<reco::GenParticle> > GenParticles;
-  iEvent.getByLabel(GenParticleTag_,GenParticles);
+  iEvent.getByToken(GenParticleTag_,GenParticles);
 
   edm::Handle<std::vector<reco::PFTau> > PFTau;
-  iEvent.getByLabel(TauPairTag_,PFTau);
+  iEvent.getByToken(TauPairTag_,PFTau);
 
-  edm::Handle<reco::VertexCollection > PV;
-  iEvent.getByLabel(PVTag_,PV);
+  edm::Handle<reco::VertexCollection> PV;
+  iEvent.getByToken(PVTag_,PV);
 
 
   // Select tau-pair to consider
