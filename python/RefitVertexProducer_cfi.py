@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from VertexRefit.TauRefit.NonTauPairTrackCollectionProducer_cfi import *
 
-RefitVertexProducer = cms.EDProducer(
+RefitVertexBSProducer = cms.EDProducer(
 	"RefitVertexProducer",
 	 TrackCollectionTag = cms.InputTag("NonTauPairTrackCollectionProducer"),
 	 #TrackCollectionTag = cms.InputTag("globalMuons"),
@@ -9,4 +9,13 @@ RefitVertexProducer = cms.EDProducer(
 	 useBeamSpot = cms.bool(True)
 )
 
-RefitVertex = cms.Sequence(NonTauPairTrackCollectionProducer*RefitVertexProducer)
+RefitVertexNoBSProducer = cms.EDProducer(
+	"RefitVertexProducer",
+	 TrackCollectionTag = cms.InputTag("NonTauPairTrackCollectionProducer"),
+	 #TrackCollectionTag = cms.InputTag("globalMuons"),
+	 beamSpot = cms.InputTag("offlineBeamSpot"),
+	 useBeamSpot = cms.bool(False)
+)
+
+RefitVertexBS = cms.Sequence(NonTauPairTrackCollectionProducer*RefitVertexBSProducer)
+RefitVertexNoBS = cms.Sequence(NonTauPairTrackCollectionProducer*RefitVertexNoBSProducer)
