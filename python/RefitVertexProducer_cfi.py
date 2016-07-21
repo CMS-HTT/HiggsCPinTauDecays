@@ -4,7 +4,6 @@ from VertexRefit.TauRefit.NonTauPairTrackCollectionProducer_cfi import *
 RefitVertexBSProducer = cms.EDProducer(
 	"RefitVertexProducer",
 	 TrackCollectionTag = cms.InputTag("NonTauPairTrackCollectionProducer"),
-	 #TrackCollectionTag = cms.InputTag("globalMuons"),
 	 beamSpot = cms.InputTag("offlineBeamSpot"),
 	 useBeamSpot = cms.bool(True)
 )
@@ -12,7 +11,6 @@ RefitVertexBSProducer = cms.EDProducer(
 RefitVertexNoBSProducer = cms.EDProducer(
 	"RefitVertexProducer",
 	 TrackCollectionTag = cms.InputTag("NonTauPairTrackCollectionProducer"),
-	 #TrackCollectionTag = cms.InputTag("globalMuons"),
 	 beamSpot = cms.InputTag("offlineBeamSpot"),
 	 useBeamSpot = cms.bool(False)
 )

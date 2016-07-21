@@ -32,27 +32,27 @@ using namespace edm;
 using namespace std;
 
 class RefitVertexProducer : public EDProducer {
- public:
-  enum Alg{useInputPV=0, useFontPV};
+	public:
+		enum Alg{useInputPV=0, useFontPV};
 
-  explicit RefitVertexProducer(const edm::ParameterSet& iConfig);
-  ~RefitVertexProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&);
- private:
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
-  edm::EDGetTokenT<reco::TrackCollection> TrackCollectionTag_;
-  bool useBeamSpot_;
+		explicit RefitVertexProducer(const edm::ParameterSet& iConfig);
+		~RefitVertexProducer();
+		virtual void produce(edm::Event&,const edm::EventSetup&);
+
+	private:
+		edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
+		edm::EDGetTokenT<reco::TrackCollection> TrackCollectionTag_;
+		bool useBeamSpot_;
 };
 
 RefitVertexProducer::RefitVertexProducer(const edm::ParameterSet& iConfig):
-  //beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpot")),
-  //TrackCollectionTag_(iConfig.getParameter<edm::InputTag>("TrackCollectionTag")),
-  beamSpotTag_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
-  TrackCollectionTag_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackCollectionTag"))),
-  useBeamSpot_(iConfig.getParameter<bool>("useBeamSpot"))
+	//beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpot")),
+	//TrackCollectionTag_(iConfig.getParameter<edm::InputTag>("TrackCollectionTag")),
+	beamSpotTag_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+	TrackCollectionTag_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackCollectionTag"))),
+	useBeamSpot_(iConfig.getParameter<bool>("useBeamSpot"))
 {
-  produces<VertexCollection>();
-
+	produces<VertexCollection>();
 }
 
 RefitVertexProducer::~RefitVertexProducer(){
@@ -60,40 +60,41 @@ RefitVertexProducer::~RefitVertexProducer(){
 }
 
 void RefitVertexProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
-  // Obtain Collections
-  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
- 
-  edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByToken(beamSpotTag_,beamSpot);
 
-  edm::Handle<reco::TrackCollection> trackCollection;
-  iEvent.getByToken(TrackCollectionTag_,trackCollection);
-
-  std::auto_ptr<VertexCollection>  VertexCollection_out= std::auto_ptr<VertexCollection>(new VertexCollection);
-  //reco::VertexCollection VertexCollection_out;
+	// Obtain Collections
+	edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
+	
+	edm::Handle<reco::BeamSpot> beamSpot;
+	iEvent.getByToken(beamSpotTag_,beamSpot);
+	
+	edm::Handle<reco::TrackCollection> trackCollection;
+	iEvent.getByToken(TrackCollectionTag_,trackCollection);
+	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Refit the vertex
+	std::auto_ptr<VertexCollection> VertexCollection_out= std::auto_ptr<VertexCollection>(new VertexCollection);
 	TransientVertex transVtx;
 	std::vector<reco::TransientTrack> transTracks;
 	for (std::vector<reco::Track>::const_iterator iter=trackCollection->begin(); iter!=trackCollection->end(); ++iter){
-	  transTracks.push_back(transTrackBuilder->build(*iter));
+		transTracks.push_back(transTrackBuilder->build(*iter));
 	}
 	bool FitOk(true);
 	if ( transTracks.size() >= 3 ) {
-	  AdaptiveVertexFitter avf;
-	  avf.setWeightThreshold(0.1); //weight per track. allow almost every fit, else --> exception
-	  try {
-	    if ( !useBeamSpot_ ){
-	      transVtx = avf.vertex(transTracks);
-	    } else {
-	      transVtx = avf.vertex(transTracks, *beamSpot);
-	    }
-	  } catch (...) {
-	    FitOk = false;
-	  }
+		AdaptiveVertexFitter avf;
+		avf.setWeightThreshold(0.1); //weight per track. allow almost every fit, else --> exception
+		try {
+			if ( !useBeamSpot_ ){
+				transVtx = avf.vertex(transTracks);
+			} else {
+				transVtx = avf.vertex(transTracks, *beamSpot);
+			}
+		} catch (...) {
+			FitOk = false;
+		}
 	} else FitOk = false;
 	if ( FitOk ) VertexCollection_out->push_back(transVtx);
-  iEvent.put(VertexCollection_out);
+
+	iEvent.put(VertexCollection_out);
 }
 DEFINE_FWK_MODULE(RefitVertexProducer);
