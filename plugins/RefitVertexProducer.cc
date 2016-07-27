@@ -42,6 +42,7 @@ class RefitVertexProducer : public EDProducer {
 	private:
 		edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 		edm::EDGetTokenT<reco::TrackCollection> TrackCollectionTag_;
+		edm::EDGetTokenT<reco::VertexCollection > PVTag_;
 		bool useBeamSpot_;
 };
 
@@ -50,6 +51,7 @@ RefitVertexProducer::RefitVertexProducer(const edm::ParameterSet& iConfig):
 	//TrackCollectionTag_(iConfig.getParameter<edm::InputTag>("TrackCollectionTag")),
 	beamSpotTag_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
 	TrackCollectionTag_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackCollectionTag"))),
+	PVTag_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("PVTag"))),
 	useBeamSpot_(iConfig.getParameter<bool>("useBeamSpot"))
 {
 	produces<VertexCollection>();
@@ -71,6 +73,11 @@ void RefitVertexProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSet
 	edm::Handle<reco::TrackCollection> trackCollection;
 	iEvent.getByToken(TrackCollectionTag_,trackCollection);
 	
+	edm::Handle<reco::VertexCollection> PV;
+	iEvent.getByToken(PVTag_,PV);
+
+	reco::Vertex thePV = PV->front();
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Refit the vertex
 	std::auto_ptr<VertexCollection> VertexCollection_out= std::auto_ptr<VertexCollection>(new VertexCollection);
@@ -94,6 +101,7 @@ void RefitVertexProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSet
 		}
 	} else FitOk = false;
 	if ( FitOk ) VertexCollection_out->push_back(transVtx);
+	else VertexCollection_out->push_back(thePV);
 
 	iEvent.put(VertexCollection_out);
 }
