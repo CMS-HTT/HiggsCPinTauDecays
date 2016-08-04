@@ -111,7 +111,7 @@ void NonTauPairTrackCollectionProducer::produce(edm::Event& iEvent,const edm::Ev
 		if (Part->charge() ==0 || Part->vertexRef().isNull()) continue;
 		if ( !(Part->bestTrack()) ) continue;
 		bool skipTrack = false;
-		for (std::vector<pat::Tau>::const_iterator tauPart = PFTauPair->begin();  tauPart != PFTauPair->end(); ++tauPart){
+		for (std::vector<pat::Tau>::const_iterator tauPart = PFTauPair.begin();  tauPart != PFTauPair.end(); ++tauPart){
 			for (size_t i=0; i<tauPart->signalChargedHadrCands().size(); ++i){
 				if ( reco::deltaR(tauPart->signalChargedHadrCands()[i]->p4(), Part->p4())<deltaRThreshold
 					&& std::abs( tauPart->signalChargedHadrCands()[i]->pt()/Part->pt() -1)<deltaPtThreshold ){
