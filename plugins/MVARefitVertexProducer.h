@@ -32,6 +32,8 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
@@ -59,15 +61,28 @@ class MVARefitVertexProducer : public EDProducer {
 		~MVARefitVertexProducer();
 		virtual void produce(edm::Event&,const edm::EventSetup&);
 
+		typedef std::vector<edm::InputTag> vInputTag;
+
 	private:
-		edm::EDGetTokenT<std::vector<pat::PackedCandidate> > CandsTag_;
-		edm::EDGetTokenT<std::vector<pat::Tau> > TauPairTag_;
+		void doCombinations(int offset, int k);
+
+		edm::EDGetTokenT<std::vector<pat::PackedCandidate> > srcCands_;
+		//edm::EDGetTokenT<std::vector<pat::Tau> > TauTag_;
+		edm::EDGetTokenT<std::vector<pat::Electron> > srcElectrons_;
+		edm::EDGetTokenT<std::vector<pat::Muon> > srcMuons_;
+		edm::EDGetTokenT<std::vector<pat::Tau> > srcTaus_;
 		edm::EDGetTokenT<reco::VertexCollection > PVTag_;
 		edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 		double deltaRThreshold;
 		double deltaPtThreshold;
 		bool useBeamSpot_;
 	
+		std::vector<edm::EDGetTokenT<reco::CandidateView> > srcLeptons_;
+		std::vector<edm::Ptr<reco::Candidate> > allLeptons_;
+		std::vector<std::vector<edm::Ptr<reco::Candidate> > > combinations_;
+		std::vector<edm::Ptr<reco::Candidate> > combination_;
+
+		size_t combineNLeptons_;
 };
 
 
