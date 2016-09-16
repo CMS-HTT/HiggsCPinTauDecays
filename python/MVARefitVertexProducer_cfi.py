@@ -4,6 +4,7 @@ MVARefitVertexBSProducer = cms.EDProducer(
 	"MVARefitVertexProducer",
 	combineNLeptons = cms.int32(2),
 	srcCands = cms.InputTag("packedPFCandidates"),
+	srcLostTracks = cms.InputTag("lostTracks"),
 	#TauTag = cms.InputTag("slimmedTaus"),
 	PVTag = cms.InputTag("offlineSlimmedPrimaryVertices"),
 	deltaRThreshold = cms.double(0.001),
@@ -13,6 +14,7 @@ MVARefitVertexBSProducer = cms.EDProducer(
 	#PVTag = cms.InputTag("offlineSlimmedPrimaryVertices"),
 	beamSpot = cms.InputTag("offlineBeamSpot"),
 	useBeamSpot = cms.bool(True),
+	useLostCands = cms.bool(True),
 
 	srcElectrons = cms.InputTag("slimmedElectrons"),
 	#electronTypeID = cms.InputTag("Tight"),
@@ -29,6 +31,7 @@ MVARefitVertexNoBSProducer = cms.EDProducer(
 	"MVARefitVertexProducer",
 	combineNLeptons = cms.int32(2),
 	srcCands = cms.InputTag("packedPFCandidates"),
+	srcLostTracks = cms.InputTag("lostTracks"),
 	#TauTag = cms.InputTag("slimmedTaus"),
 	PVTag = cms.InputTag("offlineSlimmedPrimaryVertices"),
 	deltaRThreshold = cms.double(0.001),
@@ -38,6 +41,7 @@ MVARefitVertexNoBSProducer = cms.EDProducer(
 	#PVTag = cms.InputTag("offlineSlimmedPrimaryVertices"),
 	beamSpot = cms.InputTag("offlineBeamSpot"),
 	useBeamSpot = cms.bool(False),
+	useLostCands = cms.bool(True),
 
 	srcElectrons = cms.InputTag("slimmedElectrons"),
 	#electronTypeID = cms.InputTag("Tight"),

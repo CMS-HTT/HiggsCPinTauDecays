@@ -67,6 +67,7 @@ class MVARefitVertexProducer : public EDProducer {
 		void doCombinations(int offset, int k);
 
 		edm::EDGetTokenT<std::vector<pat::PackedCandidate> > srcCands_;
+		edm::EDGetTokenT<std::vector<pat::PackedCandidate> > srcLostTracks_;
 		//edm::EDGetTokenT<std::vector<pat::Tau> > TauTag_;
 		edm::EDGetTokenT<std::vector<pat::Electron> > srcElectrons_;
 		edm::EDGetTokenT<std::vector<pat::Muon> > srcMuons_;
@@ -76,6 +77,7 @@ class MVARefitVertexProducer : public EDProducer {
 		double deltaRThreshold;
 		double deltaPtThreshold;
 		bool useBeamSpot_;
+		bool useLostCands_;
 	
 		std::vector<edm::EDGetTokenT<reco::CandidateView> > srcLeptons_;
 		std::vector<edm::Ptr<reco::Candidate> > allLeptons_;
