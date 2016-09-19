@@ -110,8 +110,10 @@ void MVARefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
 		// create the TrackCollection for the current pair
 		reco::TrackCollection* newTrackCollection(new TrackCollection);
-		TransientVertex transVtx;
 		std::vector<reco::TransientTrack> transTracks;
+
+		TransientVertex transVtx;
+		reco::Vertex newPV = PV->front(); // inizialized to the PV
 		
 		// loop over the PFCandidates
 		for (std::vector<pat::PackedCandidate>::const_iterator cand = PFCands->begin(); cand != PFCands->end(); ++cand) {
@@ -221,9 +223,14 @@ void MVARefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 				FitOk = false;
 			}
 		} else FitOk = false;
-		if ( FitOk ) VertexCollection_out->push_back(transVtx);
-		else VertexCollection_out->push_back(thePV);
-		
+		//if ( FitOk ) VertexCollection_out->push_back(transVtx);
+		//else VertexCollection_out->push_back(thePV);
+		if ( FitOk ) newPV = (reco::Vertex)transVtx;
+
+		// here need to add the lines for calculating the hash
+
+		VertexCollection_out->push_back(newPV);
+
 
 	} // loop over the pair combinations
 
