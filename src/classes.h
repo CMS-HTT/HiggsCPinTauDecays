@@ -1,4 +1,4 @@
-#include "VertexRefit/TauRefit/plugins/AdvancedRefitVertexProducer.h"
+#include "VertexRefit/TauRefit/interface/RefitVertex.h"
 
 namespace {
     struct dictionary {
