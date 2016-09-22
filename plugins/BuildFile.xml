@@ -36,5 +36,6 @@
   <use   name="MagneticField/Engine"/>
   <use   name="MagneticField/Records"/>
   <use   name="FastSimulation/BaseParticlePropagator"/>
+  <use   name="VertexRefit/TauRefit"/>
   <use   name="root"/>
 </library>

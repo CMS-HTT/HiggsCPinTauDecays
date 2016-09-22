@@ -29,6 +29,6 @@ class RefitVertex : public reco::Vertex {
 
 };
 
-//typedef std::vector<RefitVertex> RefitVertexCollection;
+typedef std::vector<RefitVertex> RefitVertexCollection;
 
 #endif
