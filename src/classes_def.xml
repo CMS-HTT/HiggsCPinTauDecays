@@ -1,5 +1,7 @@
+<!--
 <lcgdict>
 	<class name="RefitVertex"/>
 	<class name="std::vector<RefitVertex>"/>
 	<class name="edm::Wrapper<vector<RefitVertex> >"/>
 </lcgdict>
+-->

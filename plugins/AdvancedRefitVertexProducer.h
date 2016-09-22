@@ -45,7 +45,7 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-#include "VertexRefit/TauRefit/interface/RefitVertex.h"
+//#include "VertexRefit/TauRefit/interface/RefitVertex.h"
 
 #include <memory>
 #include <boost/foreach.hpp>
