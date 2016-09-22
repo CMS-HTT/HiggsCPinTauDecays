@@ -1,20 +1,19 @@
-/* class MVARefitVertexProducer
+/* class AdvancedRefitVertexProducer
  * EDProducer
  * This producer is intended to take an existing track collection,
  * remove those tracks which are associated to tau decay products
  * and fit a new vertex
  */
 
-#include "VertexRefit/TauRefit/plugins/MVARefitVertexProducer.h"
+#include "VertexRefit/TauRefit/plugins/AdvancedRefitVertexProducer.h"
 
 using namespace reco;
 using namespace edm;
 using namespace std;
 
-MVARefitVertexProducer::MVARefitVertexProducer(const edm::ParameterSet& iConfig):
+AdvancedRefitVertexProducer::AdvancedRefitVertexProducer(const edm::ParameterSet& iConfig):
 	srcCands_(consumes<std::vector<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("srcCands"))),
 	srcLostTracks_(consumes<std::vector<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("srcLostTracks"))),
-	//TauTag_(consumes<std::vector<pat::Tau> >(iConfig.getParameter<edm::InputTag>("TauTag"))),
 	srcElectrons_(consumes<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>("srcElectrons"))),
 	srcMuons_(consumes<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("srcMuons"))),
 	srcTaus_(consumes<std::vector<pat::Tau> >(iConfig.getParameter<edm::InputTag>("srcTaus"))),
@@ -35,13 +34,14 @@ MVARefitVertexProducer::MVARefitVertexProducer(const edm::ParameterSet& iConfig)
 	
 	combineNLeptons_ = iConfig.getParameter<int>("combineNLeptons");
 
-	produces<VertexCollection>();
+	//produces<RefitVertexCollection>();
+	produces<std::vector<RefitVertex> >();
 }
 
-MVARefitVertexProducer::~MVARefitVertexProducer(){
+AdvancedRefitVertexProducer::~AdvancedRefitVertexProducer(){
 }
 
-void MVARefitVertexProducer::doCombinations(int offset, int k){
+void AdvancedRefitVertexProducer::doCombinations(int offset, int k){
 	
 	if (k==0){
 		combinations_.push_back(combination_);
@@ -55,9 +55,9 @@ void MVARefitVertexProducer::doCombinations(int offset, int k){
 	combination_.clear();
 }
 
-void MVARefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
-	std::cout << "+++++++++++++++++++++++++++" << std::endl;
+	//std::cout << "+++++++++++++++++++++++++++" << std::endl;
 	// Obtain collections
 	edm::Handle<std::vector<pat::PackedCandidate> > PFCands;
 	iEvent.getByToken(srcCands_,PFCands);
@@ -103,7 +103,10 @@ void MVARefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 	// Create a new track collection by removing tracks from tau decay products
 	//reco::Vertex thePV = PV->front();
 	int vtxIdx=0; // AOD PV
-	std::auto_ptr<VertexCollection> VertexCollection_out= std::auto_ptr<VertexCollection>(new VertexCollection);
+	//std::auto_ptr<VertexCollection> VertexCollection_out = std::auto_ptr<VertexCollection>(new VertexCollection);
+	//std::auto_ptr<RefitVertexCollection> VertexCollection_out;
+	std::auto_ptr<std::vector<RefitVertex> > VertexCollection_out;
+	VertexCollection_out->clear(); // 
 
 	// loop over the pairs in combinations_
 	for (std::vector<std::vector<edm::Ptr<reco::Candidate>>>::const_iterator pair = combinations_.begin(); pair != combinations_.end(); ++pair) {
@@ -113,8 +116,9 @@ void MVARefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 		std::vector<reco::TransientTrack> transTracks;
 
 		TransientVertex transVtx;
-		reco::Vertex newPV = PV->front(); // inizialized to the PV
-		
+		//reco::Vertex newPV = PV->front(); // initialized to the PV
+		RefitVertex newPV(PV->front()); // initialized to the PV
+
 		// loop over the PFCandidates
 		for (std::vector<pat::PackedCandidate>::const_iterator cand = PFCands->begin(); cand != PFCands->end(); ++cand) {
 
@@ -125,7 +129,7 @@ void MVARefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 			// loop over the pair components
 			for (size_t i=0; i<pair->size(); ++i){
 
-				// if par[i]==electron || muon
+				// if pair[i]==electron || muon
 				if (std::abs(pair->at(i)->pdgId())==11 || std::abs(pair->at(i)->pdgId())==13){
 					if (reco::deltaR(pair->at(i)->p4(), cand->p4())<deltaRThreshold
 						&& std::abs(pair->at(i)->pt()/cand->pt() -1)<deltaPtThreshold){
@@ -170,7 +174,7 @@ void MVARefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 				// loop over the pair components
 				for (size_t i=0; i<pair->size(); ++i){
 	
-					// if par[i]==electron || muon
+					// if pair[i]==electron || muon
 					if (std::abs(pair->at(i)->pdgId())==11 || std::abs(pair->at(i)->pdgId())==13){
 						if (reco::deltaR(pair->at(i)->p4(), cand->p4())<deltaRThreshold
 							&& std::abs(pair->at(i)->pt()/cand->pt() -1)<deltaPtThreshold){
@@ -225,11 +229,17 @@ void MVARefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 		} else FitOk = false;
 		//if ( FitOk ) VertexCollection_out->push_back(transVtx);
 		//else VertexCollection_out->push_back(thePV);
-		if ( FitOk ) newPV = (reco::Vertex)transVtx;
+		//if ( FitOk ) newPV = (reco::Vertex)transVtx;
+		if ( FitOk ) newPV = (RefitVertex)transVtx;
 
-		// here need to add the lines for calculating the hash
+		// Creating reference to the given pair to create the hash-code
+		//size_t iCount = 0;
+		//for (size_t i=0; i<pair->size(); ++i){
+		//	newPV.addUserVtx("lepton"+std::to_string(iCount++), pair->at(i))
+		//}
 
 		VertexCollection_out->push_back(newPV);
+
 
 
 	} // loop over the pair combinations
@@ -238,4 +248,4 @@ void MVARefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
 	iEvent.put(VertexCollection_out);
 }
-DEFINE_FWK_MODULE(MVARefitVertexProducer);
+DEFINE_FWK_MODULE(AdvancedRefitVertexProducer);

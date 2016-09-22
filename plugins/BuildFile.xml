@@ -1,4 +1,4 @@
-<library   file="*.cc" name="KITTauPlugins">
+<library   name="VertexRefitTauRefit_plugins" file="*.cc">
   <flags   EDM_PLUGIN="1"/>
   <use   name="TrackingTools/Records"/>
   <use   name="RecoVertex/KalmanVertexFit"/>

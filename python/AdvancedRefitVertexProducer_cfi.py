@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-MVARefitVertexBSProducer = cms.EDProducer(
-	"MVARefitVertexProducer",
+AdvancedRefitVertexBSProducer = cms.EDProducer(
+	"AdvancedRefitVertexProducer",
 	combineNLeptons = cms.int32(2),
 	srcCands = cms.InputTag("packedPFCandidates"),
 	srcLostTracks = cms.InputTag("lostTracks"),
@@ -27,8 +27,8 @@ MVARefitVertexBSProducer = cms.EDProducer(
 	srcLeptons = cms.VInputTag(cms.InputTag("slimmedElectrons"), cms.InputTag("slimmedMuons"), cms.InputTag("slimmedTaus")),
 )
 
-MVARefitVertexNoBSProducer = cms.EDProducer(
-	"MVARefitVertexProducer",
+AdvancedRefitVertexNoBSProducer = cms.EDProducer(
+	"AdvancedRefitVertexProducer",
 	combineNLeptons = cms.int32(2),
 	srcCands = cms.InputTag("packedPFCandidates"),
 	srcLostTracks = cms.InputTag("lostTracks"),
@@ -53,5 +53,5 @@ MVARefitVertexNoBSProducer = cms.EDProducer(
 	srcLeptons = cms.VInputTag(cms.InputTag("slimmedElectrons"), cms.InputTag("slimmedMuons"), cms.InputTag("slimmedTaus")),
 )
 
-MVARefitVertexBS = cms.Sequence(MVARefitVertexBSProducer)
-MVARefitVertexNoBS = cms.Sequence(MVARefitVertexNoBSProducer)
+AdvancedRefitVertexBS = cms.Sequence(AdvancedRefitVertexBSProducer)
+AdvancedRefitVertexNoBS = cms.Sequence(AdvancedRefitVertexNoBSProducer)

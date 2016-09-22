@@ -1,0 +1,4 @@
+<lcgdict>
+	<class name="RefitVertex"/>
+	<class name="std::vector<RefitVertex>"/>
+</lcgdict>

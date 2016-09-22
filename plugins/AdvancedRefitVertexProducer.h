@@ -1,5 +1,5 @@
-#ifndef MVARefitVertexProducer_h
-#define MVARefitVertexProducer_h
+#ifndef AdvancedRefitVertexProducer_h
+#define AdvancedRefitVertexProducer_h
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -16,12 +16,6 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -30,6 +24,13 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h" 
 #include "DataFormats/Common/interface/RefToBase.h"
+
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -43,25 +44,56 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
 #include <memory>
 #include <boost/foreach.hpp>
 #include <TFormula.h>
 
-#include <memory>
 
 using namespace reco;
 using namespace edm;
 using namespace std;
 
-class MVARefitVertexProducer : public EDProducer {
+
+class RefitVertex : public reco::Vertex {
+
+	public:
+		RefitVertex();
+		RefitVertex(reco::Vertex vtx);
+		// Get user-defined vertex reference
+		// It returns a null ref if the key is not found
+		// To check if a key exists, use hasUserVtx
+		reco::VertexRef userVtx(const std::string & key) const;
+		// Set user-defined int
+		void addUserVtx(const std::string & label, const edm::Ptr<reco::Candidate> & data, const bool overwrite = false);
+		// Get list of user-defined vtx names
+		const std::vector<std::string> & userVtxNames() const { return userVtxLabels_;}
+		// Return true if there is a user-defined int with a given name
+		bool hasUserVtx( const std::string & key) const {
+			auto it = std::lower_bound(userVtxLabels_.cbegin(), userVtxLabels_.cend(), key);
+			return ( it != userVtxLabels_.cend() && *it == key);
+		}
+		
+	private:
+		std::vector<std::string> userVtxLabels_;
+
+};
+
+//typedef std::vector<RefitVertex> RefitVertexCollection;
+
+
+class AdvancedRefitVertexProducer : public EDProducer {
 	public:
 		enum Alg{useInputPV=0, useFontPV};
 
-		explicit MVARefitVertexProducer(const edm::ParameterSet& iConfig);
-		~MVARefitVertexProducer();
+		explicit AdvancedRefitVertexProducer(const edm::ParameterSet& iConfig);
+		~AdvancedRefitVertexProducer();
+
 		virtual void produce(edm::Event&,const edm::EventSetup&);
 
 		typedef std::vector<edm::InputTag> vInputTag;
+
+
 
 	private:
 		void doCombinations(int offset, int k);
@@ -85,6 +117,7 @@ class MVARefitVertexProducer : public EDProducer {
 		std::vector<edm::Ptr<reco::Candidate> > combination_;
 
 		size_t combineNLeptons_;
+
 };
 
 
