@@ -15,7 +15,7 @@ class RefitVertex : public reco::Vertex {
 		// To check if a key exists, use hasUserVtx
 		reco::VertexRef userVtx(const std::string & key) const;
 		// Set user-defined int
-		void addUserVtx(const std::string & label, const edm::Ptr<reco::Candidate> & data, const bool overwrite = false);
+		void addUserVtx(const std::string & label, const edm::Ptr<reco::Candidate> & data, const bool overwrite = false) {};
 		// Get list of user-defined vtx names
 		const std::vector<std::string> & userVtxNames() const { return userVtxLabels_;}
 		// Return true if there is a user-defined int with a given name

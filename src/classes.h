@@ -1,9 +1,9 @@
-//#include "VertexRefit/TauRefit/interface/RefitVertex.h"
+#include "VertexRefit/TauRefit/interface/RefitVertex.h"
 
-//namespace {
-//    struct dictionary {
-//		RefitVertex dummy;
-//        std::vector<RefitVertex> dummy2;
-//		edm::Wrapper<vector<RefitVertex> > dummy3;
-//    };
-//}
+namespace {
+    struct dictionary {
+		RefitVertex dummy;
+        std::vector<RefitVertex> dummy2;
+		edm::Wrapper<vector<RefitVertex> > dummy3;
+    };
+}

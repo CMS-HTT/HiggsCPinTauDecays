@@ -35,8 +35,8 @@ AdvancedRefitVertexProducer::AdvancedRefitVertexProducer(const edm::ParameterSet
 	combineNLeptons_ = iConfig.getParameter<int>("combineNLeptons");
 
 	//produces<RefitVertexCollection>();
-	//produces<std::vector<RefitVertex> >();
-	produces<VertexCollection>();
+	produces<std::vector<RefitVertex> >();
+	//produces<VertexCollection>();
 }
 
 AdvancedRefitVertexProducer::~AdvancedRefitVertexProducer(){
@@ -104,10 +104,8 @@ void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSe
 	// Create a new track collection by removing tracks from tau decay products
 	//reco::Vertex thePV = PV->front();
 	int vtxIdx=0; // AOD PV
-	std::auto_ptr<VertexCollection> VertexCollection_out = std::auto_ptr<VertexCollection>(new VertexCollection);
-	//std::auto_ptr<RefitVertexCollection> VertexCollection_out;
-	//std::auto_ptr<std::vector<RefitVertex> > VertexCollection_out2;
-	//VertexCollection_out2->clear(); // 
+	//std::auto_ptr<VertexCollection> VertexCollection_out = std::auto_ptr<VertexCollection>(new VertexCollection);
+	std::auto_ptr<RefitVertexCollection> VertexCollection_out = std::auto_ptr<RefitVertexCollection>(new RefitVertexCollection);
 
 	// loop over the pairs in combinations_
 	for (std::vector<std::vector<edm::Ptr<reco::Candidate>>>::const_iterator pair = combinations_.begin(); pair != combinations_.end(); ++pair) {
@@ -117,8 +115,8 @@ void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSe
 		std::vector<reco::TransientTrack> transTracks;
 
 		TransientVertex transVtx;
-		reco::Vertex newPV = PV->front(); // initialized to the PV
-		//RefitVertex newPV2(PV->front()); // initialized to the PV
+		//reco::Vertex newPV = PV->front(); // initialized to the PV
+		RefitVertex newPV(thePV); // initialized to the PV
 
 		// loop over the PFCandidates
 		for (std::vector<pat::PackedCandidate>::const_iterator cand = PFCands->begin(); cand != PFCands->end(); ++cand) {
@@ -228,10 +226,8 @@ void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSe
 				FitOk = false;
 			}
 		} else FitOk = false;
-		//if ( FitOk ) VertexCollection_out->push_back(transVtx);
-		//else VertexCollection_out->push_back(thePV);
-		if ( FitOk ) newPV = (reco::Vertex)transVtx;
-		//if ( FitOk ) newPV2 = (RefitVertex)transVtx;
+		//if ( FitOk ) newPV = (reco::Vertex)transVtx;
+		if ( FitOk ) newPV = (RefitVertex)transVtx;
 
 		// Creating reference to the given pair to create the hash-code
 		//size_t iCount = 0;
@@ -240,14 +236,13 @@ void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSe
 		//}
 
 		VertexCollection_out->push_back(newPV);
-		//VertexCollection_out2->push_back(newPV2);
-
-
 
 	} // loop over the pair combinations
+
 
 	if (combinations_.size()==0) VertexCollection_out->push_back(thePV);
 
 	iEvent.put(VertexCollection_out);
+
 }
 DEFINE_FWK_MODULE(AdvancedRefitVertexProducer);
