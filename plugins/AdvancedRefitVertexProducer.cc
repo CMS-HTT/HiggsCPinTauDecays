@@ -34,9 +34,7 @@ AdvancedRefitVertexProducer::AdvancedRefitVertexProducer(const edm::ParameterSet
 	
 	combineNLeptons_ = iConfig.getParameter<int>("combineNLeptons");
 
-	//produces<RefitVertexCollection>();
 	produces<std::vector<RefitVertex> >();
-	//produces<VertexCollection>();
 }
 
 AdvancedRefitVertexProducer::~AdvancedRefitVertexProducer(){
@@ -58,7 +56,6 @@ void AdvancedRefitVertexProducer::doCombinations(int offset, int k){
 
 void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
-	//std::cout << "+++++++++++++++++++++++++++" << std::endl;
 	// Obtain collections
 	edm::Handle<std::vector<pat::PackedCandidate> > PFCands;
 	iEvent.getByToken(srcCands_,PFCands);
@@ -102,9 +99,7 @@ void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSe
 
 
 	// Create a new track collection by removing tracks from tau decay products
-	//reco::Vertex thePV = PV->front();
 	int vtxIdx=0; // AOD PV
-	//std::auto_ptr<VertexCollection> VertexCollection_out = std::auto_ptr<VertexCollection>(new VertexCollection);
 	std::auto_ptr<RefitVertexCollection> VertexCollection_out = std::auto_ptr<RefitVertexCollection>(new RefitVertexCollection);
 
 	// loop over the pairs in combinations_
@@ -115,7 +110,6 @@ void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSe
 		std::vector<reco::TransientTrack> transTracks;
 
 		TransientVertex transVtx;
-		//reco::Vertex newPV = PV->front(); // initialized to the PV
 		RefitVertex newPV(thePV); // initialized to the PV
 
 		// loop over the PFCandidates
@@ -226,21 +220,21 @@ void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSe
 				FitOk = false;
 			}
 		} else FitOk = false;
-		//if ( FitOk ) newPV = (reco::Vertex)transVtx;
 		if ( FitOk ) newPV = (RefitVertex)transVtx;
 
 		// Creating reference to the given pair to create the hash-code
-		//size_t iCount = 0;
-		//for (size_t i=0; i<pair->size(); ++i){
-		//	newPV.addUserVtx("lepton"+std::to_string(iCount++), pair->at(i))
-		//}
+		size_t iCount = 0;
+		for (size_t i=0; i<pair->size(); ++i){
+			newPV.addUserCand("lepton"+std::to_string(iCount++), pair->at(i));
+		}
+
 
 		VertexCollection_out->push_back(newPV);
 
 	} // loop over the pair combinations
 
 
-	if (combinations_.size()==0) VertexCollection_out->push_back(thePV);
+	if (combinations_.size()==0) VertexCollection_out->push_back((RefitVertex)thePV);
 
 	iEvent.put(VertexCollection_out);
 
