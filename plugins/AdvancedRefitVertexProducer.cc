@@ -220,21 +220,22 @@ void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSe
 				FitOk = false;
 			}
 		} else FitOk = false;
-		if ( FitOk ) newPV = (RefitVertex)transVtx;
+		if ( FitOk ){
+			 newPV = (RefitVertex)transVtx;
 
-		// Creating reference to the given pair to create the hash-code
-		size_t iCount = 0;
-		for (size_t i=0; i<pair->size(); ++i){
-			newPV.addUserCand("lepton"+std::to_string(iCount++), pair->at(i));
-		}
+			// Creating reference to the given pair to create the hash-code
+			size_t iCount = 0;
+			for (size_t i=0; i<pair->size(); ++i){
+				newPV.addUserCand("lepton"+std::to_string(iCount++), pair->at(i));
+			}
 
-
-		VertexCollection_out->push_back(newPV);
+			VertexCollection_out->push_back(newPV);
+		} // if FitOk == true
 
 	} // loop over the pair combinations
 
 
-	if (combinations_.size()==0) VertexCollection_out->push_back((RefitVertex)thePV);
+	//if (combinations_.size()==0) VertexCollection_out->push_back((RefitVertex)thePV);
 
 	iEvent.put(VertexCollection_out);
 
