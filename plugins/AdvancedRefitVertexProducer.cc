@@ -106,7 +106,8 @@ void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSe
 	for (std::vector<std::vector<edm::Ptr<reco::Candidate>>>::const_iterator pair = combinations_.begin(); pair != combinations_.end(); ++pair) {
 
 		// create the TrackCollection for the current pair
-		reco::TrackCollection* newTrackCollection(new TrackCollection);
+		//reco::TrackCollection* newTrackCollection(new TrackCollection);
+		std::auto_ptr<reco::TrackCollection> newTrackCollection = std::auto_ptr<reco::TrackCollection>(new TrackCollection);
 		std::vector<reco::TransientTrack> transTracks;
 
 		TransientVertex transVtx;
