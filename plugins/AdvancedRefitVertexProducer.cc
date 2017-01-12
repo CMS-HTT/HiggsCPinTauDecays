@@ -100,8 +100,13 @@ void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSe
 
 	// Create a new track collection by removing tracks from tau decay products
 	int vtxIdx=0; // AOD PV
+	
+#if CMSSW_MAJOR_VERSION < 8
 	std::auto_ptr<RefitVertexCollection> VertexCollection_out = std::auto_ptr<RefitVertexCollection>(new RefitVertexCollection);
-
+#else	
+	std::unique_ptr<RefitVertexCollection> VertexCollection_out = std::auto_ptr<RefitVertexCollection>(new RefitVertexCollection);
+#endif
+	
 	// loop over the pairs in combinations_
 	for (std::vector<std::vector<edm::Ptr<reco::Candidate>>>::const_iterator pair = combinations_.begin(); pair != combinations_.end(); ++pair) {
 
@@ -237,8 +242,11 @@ void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSe
 
 
 	//if (combinations_.size()==0) VertexCollection_out->push_back((RefitVertex)thePV);
-
+#if CMSSW_MAJOR_VERSION < 8
 	iEvent.put(VertexCollection_out);
+#else
+	iEvent.put(std::move(VertexCollection_out));
+#endif
 
 }
 DEFINE_FWK_MODULE(AdvancedRefitVertexProducer);
