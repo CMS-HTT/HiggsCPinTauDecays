@@ -23,8 +23,8 @@ AdvancedRefitVertexProducer::AdvancedRefitVertexProducer(const edm::ParameterSet
 	deltaRThreshold(iConfig.getParameter<double>("deltaRThreshold")),
 	deltaPtThreshold(iConfig.getParameter<double>("deltaPtThreshold")),
 	useBeamSpot_(iConfig.getParameter<bool>("useBeamSpot")),
-	useLostCands_(iConfig.getParameter<bool>("useLostCands"))
-
+	useLostCands_(iConfig.getParameter<bool>("useLostCands")),
+	excludeFullyLeptonic_(iConfig.getUntrackedParameter<bool>("excludeFullyLeptonic", false))
 
 {
 	vInputTag srcLeptonsTags = iConfig.getParameter<vInputTag>("srcLeptons");
@@ -109,6 +109,11 @@ void AdvancedRefitVertexProducer::produce(edm::Event& iEvent, const edm::EventSe
 	
 	// loop over the pairs in combinations_
 	for (std::vector<std::vector<edm::Ptr<reco::Candidate>>>::const_iterator pair = combinations_.begin(); pair != combinations_.end(); ++pair) {
+
+	  //exclude ee, mm, em pairs if fully leptonic is not considered. 
+	  if(excludeFullyLeptonic_ && 
+	     (std::abs(pair->at(0)->pdgId())==11 || std::abs(pair->at(0)->pdgId())==13) &&
+	     (std::abs(pair->at(1)->pdgId())==11 || std::abs(pair->at(1)->pdgId())==13)) continue;
 
 		// create the TrackCollection for the current pair
 		//reco::TrackCollection* newTrackCollection(new TrackCollection);
