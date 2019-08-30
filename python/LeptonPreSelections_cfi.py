@@ -16,7 +16,7 @@ filteredElectrons = cms.EDFilter("PATElectronSelector",
 filteredTaus = cms.EDFilter("PATTauSelector",
                             src = cms.InputTag("NewTauIDsEmbedded"),
                             cut = cms.string("tauID('decayModeFindingNewDMs') > 0.5" +
-                                             " && tauID('byVLooseIsolationMVArun2017v2DBnewDMwLT2017') > 0.5"
+                                             " && (tauID('byVLooseIsolationMVArun2017v2DBnewDMwLT2017') > 0.5 || tauID('byVVLooseDeepTau2017v2p1VSjet') > 0.5)"
                                              )
                             )
 
