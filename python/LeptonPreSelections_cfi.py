@@ -22,8 +22,8 @@ filteredTaus = cms.EDFilter("PATTauSelector",
 
 from VertexRefit.TauRefit.AdvancedRefitVertexProducer_cfi import *
 AdvancedRefitVertexBSProducer.srcLeptons = cms.VInputTag(cms.InputTag("filteredElectrons"), cms.InputTag("filteredMuons"), cms.InputTag("filteredTaus"))
-AdvancedRefitVertexBSProducer.excludeFullyLeptonic = cms.untracked.bool(False)
+AdvancedRefitVertexBSProducer.excludeFullyLeptonic = cms.untracked.bool(True)
 AdvancedRefitVertexBSSequence = cms.Sequence(filteredMuons*filteredElectrons*filteredTaus*AdvancedRefitVertexBSProducer)
 AdvancedRefitVertexNoBSProducer.srcLeptons = cms.VInputTag(cms.InputTag("filteredElectrons"), cms.InputTag("filteredMuons"), cms.InputTag("filteredTaus"))
-AdvancedRefitVertexNoBSProducer.excludeFullyLeptonic = cms.untracked.bool(False)
+AdvancedRefitVertexNoBSProducer.excludeFullyLeptonic = cms.untracked.bool(True)
 AdvancedRefitVertexNoBSBSSequence = cms.Sequence(filteredMuons*filteredElectrons*filteredTaus*AdvancedRefitVertexNoBSProducer)
