@@ -16,14 +16,14 @@ filteredElectrons = cms.EDFilter("PATElectronSelector",
 filteredTaus = cms.EDFilter("PATTauSelector",
                             src = cms.InputTag("NewTauIDsEmbedded"),
                             cut = cms.string("tauID('decayModeFindingNewDMs') > 0.5" +
-                                             " && tauID('byVLooseIsolationMVArun2017v2DBnewDMwLT2017') > 0.5"
+                                             " && (tauID('byVLooseIsolationMVArun2017v2DBnewDMwLT2017') > 0.5 || tauID('byVVLooseDeepTau2017v2p1VSjet') > 0.5)"
                                              )
                             )
 
 from VertexRefit.TauRefit.AdvancedRefitVertexProducer_cfi import *
-AdvancedRefitVertexBSProducer.srcTaus = cms.InputTag("filteredTaus")
 AdvancedRefitVertexBSProducer.srcLeptons = cms.VInputTag(cms.InputTag("filteredElectrons"), cms.InputTag("filteredMuons"), cms.InputTag("filteredTaus"))
+AdvancedRefitVertexBSProducer.excludeFullyLeptonic = cms.untracked.bool(False)
 AdvancedRefitVertexBSSequence = cms.Sequence(filteredMuons*filteredElectrons*filteredTaus*AdvancedRefitVertexBSProducer)
-AdvancedRefitVertexNoBSProducer.srcTaus = cms.InputTag("filteredTaus") 
 AdvancedRefitVertexNoBSProducer.srcLeptons = cms.VInputTag(cms.InputTag("filteredElectrons"), cms.InputTag("filteredMuons"), cms.InputTag("filteredTaus"))
+AdvancedRefitVertexNoBSProducer.excludeFullyLeptonic = cms.untracked.bool(False)
 AdvancedRefitVertexNoBSBSSequence = cms.Sequence(filteredMuons*filteredElectrons*filteredTaus*AdvancedRefitVertexNoBSProducer)

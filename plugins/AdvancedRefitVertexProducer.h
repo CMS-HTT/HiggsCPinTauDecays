@@ -87,7 +87,8 @@ class AdvancedRefitVertexProducer : public EDProducer {
 		double deltaPtThreshold;
 		bool useBeamSpot_;
 		bool useLostCands_;
-	
+		bool excludeFullyLeptonic_;
+
 		std::vector<edm::EDGetTokenT<reco::CandidateView> > srcLeptons_;
 		std::vector<edm::Ptr<reco::Candidate> > allLeptons_;
 		std::vector<std::vector<edm::Ptr<reco::Candidate> > > combinations_;
