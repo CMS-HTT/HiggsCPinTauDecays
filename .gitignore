@@ -1,0 +1,10 @@
+*.o
+*.a
+*.so
+*.pcm
+*.bin
+*.sbin
+*.pyc
+*~
+*.root
+*python/__init__.py
