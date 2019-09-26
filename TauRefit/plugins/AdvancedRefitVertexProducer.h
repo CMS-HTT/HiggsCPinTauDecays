@@ -21,8 +21,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h" 
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -45,7 +45,7 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-#include "VertexRefit/TauRefit/interface/RefitVertex.h"
+#include "HiggsCPinTauDecays/TauRefit/interface/RefitVertex.h"
 
 #include <memory>
 #include <boost/foreach.hpp>

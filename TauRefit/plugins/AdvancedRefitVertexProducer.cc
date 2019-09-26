@@ -5,7 +5,7 @@
  * and fit a new vertex
  */
 
-#include "VertexRefit/TauRefit/plugins/AdvancedRefitVertexProducer.h"
+#include "HiggsCPinTauDecays/TauRefit/plugins/AdvancedRefitVertexProducer.h"
 
 using namespace reco;
 using namespace edm;

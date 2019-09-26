@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from VertexRefit.TauRefit.NonTauPairTrackCollectionProducer_cfi import *
+from HiggsCPinTauDecays.TauRefit.NonTauPairTrackCollectionProducer_cfi import *
 
 RefitVertexBSProducer = cms.EDProducer(
 	"RefitVertexProducer",

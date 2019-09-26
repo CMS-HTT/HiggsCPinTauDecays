@@ -1,4 +1,4 @@
-<library   name="VertexRefitTauRefit_plugins" file="*.cc">
+<library   name="HiggsCPinTauDecaysTauRefit_plugins" file="*.cc">
   <flags   EDM_PLUGIN="1"/>
   <use   name="TrackingTools/Records"/>
   <use   name="RecoVertex/KalmanVertexFit"/>
@@ -36,7 +36,7 @@
   <use   name="MagneticField/Engine"/>
   <use   name="MagneticField/Records"/>
   <use   name="FastSimulation/BaseParticlePropagator"/>
-  <use   name="VertexRefit/TauRefit"/>
+  <use   name="HiggsCPinTauDecays/TauRefit"/>
   <use   name="root"/>
 </library>
 

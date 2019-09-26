@@ -4,7 +4,7 @@
  * and refit the vertex applying BeamSpot constraint
  */
 
-#include "VertexRefit/TauRefit/plugins/MiniAODRefitVertexProducer.h"
+#include "HiggsCPinTauDecays/TauRefit/plugins/MiniAODRefitVertexProducer.h"
 
 using namespace reco;
 using namespace edm;

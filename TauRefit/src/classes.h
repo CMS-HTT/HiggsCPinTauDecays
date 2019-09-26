@@ -1,4 +1,4 @@
-#include "VertexRefit/TauRefit/interface/RefitVertex.h"
+#include "HiggsCPinTauDecays/TauRefit/interface/RefitVertex.h"
 
 namespace {
     struct dictionary {
