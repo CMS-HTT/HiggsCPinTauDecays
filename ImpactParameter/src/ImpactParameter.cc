@@ -26,6 +26,21 @@ double V_z = -999;
 const double eQ = 1.60217662e-19; // elementary charge
 const double c = 2.99792458*1e8; // speed of light in m/s
 
+double ImpactParameter::CalculateIPSignificanceHelical(TVector3 IP, ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> IPCovariance){
+	// Conversion from TVector3 to SVector
+	ROOT::Math::SVector<float, 3> IPNormalized(IP(0), IP(1), IP(2));
+	// Jacobi Matrix to get uncertainty on the magnitude of the IP
+	IPNormalized = IPNormalized.Unit();
+	double errorIP = sqrt( ROOT::Math::Dot(IPNormalized, IPCovariance * IPNormalized) );
+	double IPSignificance = IP.Mag() / errorIP;
+	return IPSignificance;
+}
+
+double ImpactParameter::CalculateIPSignificanceTangential(TVector3 IP, SMatrixSym3D PVCovariance){
+	double sigmaIP = ImpactParameter::CalculatePCADifferece(PVCovariance, IP);
+	return IP.Mag()/sigmaIP;
+}
+
 short Sign(double x){
 	return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
 }

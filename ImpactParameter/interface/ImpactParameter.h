@@ -36,6 +36,8 @@ public:
 	TVector3 CalculateShortestDistance(RMFLV p4, RMPoint vertex, RMPoint* pv);
 	TVector3 CalculateShortestDistance(RMFLV p4, RMPoint ref, RMPoint pv);
 	//std::vector<double> CalculateIPErrors(RMFLV p4, RMPoint ref, KVertex* pv, TVector3* ipvec);
+	double CalculateIPSignificanceHelical(TVector3 IP, ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> IPCovariance);
+	double CalculateIPSignificanceTangential(TVector3 IP, SMatrixSym3D PVCovariance);
 
 	// set functions for variables used in the helical approach
 	inline double GetHelixRadius(){ return helixRadius; }
@@ -64,7 +66,7 @@ private:
 	inline void SetHelixRadius(double radius){ helixRadius = radius; }
 	inline void SetRecoMagneticField(double magneticField){ recoMagneticField = magneticField;}
 	inline void SetRecoV_z_SI(double v_z_SI){ recoV_z_SI = v_z_SI; }
-	inline void SetRecoOmega(double Omega){ recoOmega = recoOmega; }
+	inline void SetRecoOmega(double Omega){ recoOmega = Omega; }
 	inline void SetRecoPhi1(double Phi_1){ recoPhi1 = Phi_1; }
 	inline void SetXBest(double XBest){ xBest = XBest; }
 	inline void SetRecoDxy(double Dxy){ recoDxy = Dxy; }
