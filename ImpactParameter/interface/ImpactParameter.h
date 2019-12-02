@@ -30,7 +30,7 @@ class ImpactParameter
 {
 public:
 	double CalculatePCADifferece(SMatrixSym3D cov, TVector3 DeltaPCA);
-	TVector3 CalculatePCA(double B, std::vector<float> h_param, RMPoint ref, RMPoint PrV, RMFLV p4);
+	TVector3 CalculatePCA(double B, std::vector<float> h_param, RMPoint ref, RMPoint PrV);
 	ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> CalculatePCACovariance(ROOT::Math::SMatrix<float,5,5, ROOT::Math::MatRepSym<float,5>> helixCov, SMatrixSym3D SigmaPrV);
 	//TVector3 CalculateShortestDistance(KGenParticle* genParticle, RMPoint* pv);
 	TVector3 CalculateShortestDistance(RMFLV p4, RMPoint vertex, RMPoint* pv);
