@@ -13,12 +13,12 @@ class IpCorrection {
  public:
   IpCorrection(TString fileName);
   ~IpCorrection();
-  float correctIp(int coordinate, float ip, float eta);
-  float correctIp(int coordinate, float ip, float ipgen, float eta);
+  double correctIp(int coordinate, double ip, double eta);
+  double correctIp(int coordinate, double ip, double ipgen, double eta);
   enum Coordinate{Ipx=0, Ipy=1, Ipz=2};
 
  private:
-  int binNumber(float x, const std::vector<float> bins) const
+  int binNumber(double x, const std::vector<double> bins) const
   {
     for (size_t iB=0; iB<bins.size(); ++iB)
       if (x>=bins[iB]&&x<bins[iB+1])
@@ -26,7 +26,7 @@ class IpCorrection {
     return 0;
   }
 
-  int binNumber(float x, int nbins, const float * bins) {
+  int binNumber(double x, int nbins, const double * bins) {
     int binN = 0;
     for (int iB=0; iB<nbins; ++iB) {
       if (x>=bins[iB]&&x<bins[iB+1]) {
@@ -39,13 +39,13 @@ class IpCorrection {
 
   TH1D * histIpData[3][4];
   TH1D * histIpMC[3][4];
-  float normData[3][4];
-  float normMC[3][4];
+  double normData[3][4];
+  double normMC[3][4];
 
   std::vector<TString> IpNames = {"ipx","ipy","ipz"};
   std::vector<TString> EtaNames;
   int nEtaBins;
-  std::vector<float>  EtaRanges;
+  std::vector<double>  EtaRanges;
 
 
 

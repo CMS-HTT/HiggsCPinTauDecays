@@ -43,37 +43,37 @@ IpCorrection::~IpCorrection() {
 
 }
 
-float IpCorrection::correctIp(int coor, float ip, float ipgen, float eta) {
+double IpCorrection::correctIp(int coor, double ip, double ipgen, double eta) {
 
-  float ip_corr = ipgen + correctIp(coor,ip-ipgen,eta);
+  double ip_corr = ipgen + correctIp(coor,ip-ipgen,eta);
   return ip_corr;
 
 }
 
-float IpCorrection::correctIp(int coor, float ip, float eta) {
+double IpCorrection::correctIp(int coor, double ip, double eta) {
 
-  float absEta = TMath::Abs(eta);
+  double absEta = TMath::Abs(eta);
   int nEta = binNumber(absEta,EtaRanges);
 
   TH1D * histMC = histIpMC[coor][nEta];
   TH1D * histData = histIpData[coor][nEta];
-  float xmin = histMC->GetXaxis()->GetBinLowEdge(1);
-  float xmax = histMC->GetYaxis()->GetBinLowEdge(histMC->GetNbinsX()+1);
+  double xmin = histMC->GetXaxis()->GetBinLowEdge(1);
+  double xmax = histMC->GetYaxis()->GetBinLowEdge(histMC->GetNbinsX()+1);
 
   if (ip<xmin||ip>xmax)
     return ip;
 
   int nBinMC = histMC->GetXaxis()->FindBin(ip);
-  float int_lower = (histMC->Integral(0,nBinMC-1) - histMC->Integral(0,0))/normMC[coor][nEta];
-  float int_upper = (histMC->Integral(0,nBinMC) - histMC->Integral(0,0))/normMC[coor][nEta];
-  float int_diff = int_upper - int_lower;
-  float xlow = histMC->GetXaxis()->GetBinLowEdge(nBinMC);
-  float binWidth = histMC->GetXaxis()->GetBinWidth(nBinMC);
-  float int_center = int_lower + int_diff*(ip-xlow)/binWidth;
+  double int_lower = (histMC->Integral(0,nBinMC-1) - histMC->Integral(0,0))/normMC[coor][nEta];
+  double int_upper = (histMC->Integral(0,nBinMC) - histMC->Integral(0,0))/normMC[coor][nEta];
+  double int_diff = int_upper - int_lower;
+  double xlow = histMC->GetXaxis()->GetBinLowEdge(nBinMC);
+  double binWidth = histMC->GetXaxis()->GetBinWidth(nBinMC);
+  double int_center = int_lower + int_diff*(ip-xlow)/binWidth;
 
   int nBinData = 1;
-  float int_data_lower = 0;
-  float int_data_higher = 0;
+  double int_data_lower = 0;
+  double int_data_higher = 0;
   for (int j=1; j<=histData->GetNbinsX(); ++j) {
     int_data_lower = (histData->Integral(0,j-1) - histData->Integral(0,0))/normData[coor][nEta];
     int_data_higher = (histData->Integral(0,j) - histData->Integral(0,0))/normData[coor][nEta];
@@ -83,11 +83,11 @@ float IpCorrection::correctIp(int coor, float ip, float eta) {
     }
   }
   
-  float binWidthData = histData->GetXaxis()->GetBinWidth(nBinData);
-  float xlowData = histData->GetXaxis()->GetBinLowEdge(nBinData);
+  double binWidthData = histData->GetXaxis()->GetBinWidth(nBinData);
+  double xlowData = histData->GetXaxis()->GetBinLowEdge(nBinData);
   
-  float int_data_diff = int_data_higher - int_data_lower;
-  float ipcorr = xlowData + binWidthData*(int_center-int_data_lower)/int_data_diff;
+  double int_data_diff = int_data_higher - int_data_lower;
+  double ipcorr = xlowData + binWidthData*(int_center-int_data_lower)/int_data_diff;
 
   return ipcorr;
 
