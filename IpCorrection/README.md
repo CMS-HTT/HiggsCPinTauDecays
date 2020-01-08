@@ -1,8 +1,8 @@
 ### The usage of the code
 
+```cpp
 #include "HiggsCPinTauDecays/IpCorrection/interface/IpCorrection.h"
 
-```cpp
 // pass to the constructor the name of the RooT file with IP resolution lineshapes derived from Z->mumu events
 
 string cmsswBase = (getenv ("CMSSW_BASE"));
