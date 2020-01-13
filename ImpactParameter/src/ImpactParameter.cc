@@ -93,6 +93,9 @@ TVector3 ImpactParameter::CalculatePCA(double B, std::vector<float> h_param, RMP
 	ReferencePoint.SetXYZ(ref.x(),ref.y(),ref.z());
 	PrimaryVertex.SetXYZ(PrV.x(),PrV.y(),PrV.z());
 
+	this->SetRecoDxy(h_param[3]);
+	this->SetRecoDsz(h_param[4]);
+
 	//minimizing the distance between the helix and the primary vertex PV
 	double x_best = 0.0;
 	ROOT::Math::Minimizer* min = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Combined");
