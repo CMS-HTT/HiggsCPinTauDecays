@@ -39,39 +39,23 @@ public:
 	double CalculateIPSignificanceHelical(TVector3 IP, ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> IPCovariance);
 	double CalculateIPSignificanceTangential(TVector3 IP, SMatrixSym3D PVCovariance);
 
-	// set functions for variables used in the helical approach
-	inline double GetHelixRadius(){ return helixRadius; }
-	inline double GetRecoMagneticField(){ return recoMagneticField;}
-	inline double GetRecoV_z_SI(){ return recoV_z_SI; }
-	inline double GetRecoQOverP(){ return recoQOverP; }
-	inline double GetRecoDxy(){ return recoDxy; }
-	inline double GetRecoDsz(){ return recoDsz; }
-	inline double GetRecoOmega(){ return recoOmega; }
-	inline double GetRecoPhi1(){ return recoPhi1; }
-	inline double GetXBest(){ return xBest; }
-	inline RMPoint GetRecoOprime(){ return recoOprime; }
-private:
-	double helixRadius;
-	double recoMagneticField;
-	double recoV_z_SI;
-	double recoOmega;
-	double recoPhi1;
-	double xBest;
-	double recoQOverP;
-	double recoDxy;
-	double recoDsz;
-	RMPoint recoOprime;
+	std::pair <TVector3, ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >>> CalculateIPandCovariance(double B, std::vector<float> h_param, RMPoint ref, RMPoint PrV, ROOT::Math::SMatrix<float,5,5, ROOT::Math::MatRepSym<float,5>> helixCov, SMatrixSym3D SigmaPrV);
 
 	// set functions for variables used in the helical approach
-	inline void SetHelixRadius(double radius){ helixRadius = radius; }
-	inline void SetRecoMagneticField(double magneticField){ recoMagneticField = magneticField;}
-	inline void SetRecoV_z_SI(double v_z_SI){ recoV_z_SI = v_z_SI; }
-	inline void SetRecoOmega(double Omega){ recoOmega = Omega; }
-	inline void SetRecoPhi1(double Phi_1){ recoPhi1 = Phi_1; }
+	inline double GetRecoDxy(){ return recoDxy; }
+	inline double GetRecoDsz(){ return recoDsz; }
+	inline double GetXBest(){ return xBest; }
+	inline double GetPCAIsCalculated(){ return pcaIsCalculated; }
+private:
+	double xBest;
+	double recoDxy;
+	double recoDsz;
+	bool pcaIsCalculated = false;
+
+	// set functions for variables used in the helical approach
 	inline void SetXBest(double XBest){ xBest = XBest; }
 	inline void SetRecoDxy(double Dxy){ recoDxy = Dxy; }
 	inline void SetRecoDsz(double Dsz){ recoDsz = Dsz; }
-	inline void SetRecoQOverP(double qoverp){ recoQOverP = qoverp; }
-	inline void SetRecoOprime(RMPoint Oprime){ recoOprime = Oprime; }
+	inline void SetPCAIsCalculated(bool isCalculated){ pcaIsCalculated = isCalculated; }
 };
 
