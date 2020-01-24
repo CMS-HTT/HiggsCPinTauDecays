@@ -2,7 +2,7 @@
 
 IpCorrection::IpCorrection(TString fileName) {
 
-  TFile * file = new TFile(fileName);
+  file = new TFile(fileName);
   if (file->IsZombie()) {
     std::cout << "IpCorrection : file " << fileName << " does not exist" << std::endl;
     exit(-1);
@@ -40,7 +40,7 @@ IpCorrection::IpCorrection(TString fileName) {
 }
 
 IpCorrection::~IpCorrection() {
-
+  file->Close();
 }
 
 double IpCorrection::correctIp(int coor, double ip, double ipgen, double eta) {

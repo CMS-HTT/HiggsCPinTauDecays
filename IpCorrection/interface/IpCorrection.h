@@ -37,6 +37,7 @@ class IpCorrection {
     return binN;
   }
 
+  TFile * file = nullptr;
   TH1D * histIpData[3][4];
   TH1D * histIpMC[3][4];
   double normData[3][4];
