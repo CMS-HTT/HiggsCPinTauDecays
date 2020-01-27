@@ -199,6 +199,67 @@ ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> ImpactParam
 	}
 }
 
+ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> ImpactParameter::CalculatePCACovarianceTrack(ROOT::Math::SMatrix<float,5,5, ROOT::Math::MatRepSym<float,5>> helixCovariance)
+{
+
+	double Dxy = GetRecoDxy();
+	double Dsz = GetRecoDsz();
+	double xBest = GetXBest();
+
+	ROOT::Math::SMatrix<float,3,5, ROOT::Math::MatRepStd< float, 3, 5 >> jacobiPointOnHelix;
+	// Derivatives of pointOnHelix with respect to
+	// qOverP
+	jacobiPointOnHelix(0, 0) =- ((TMath::Cos(Lambda) * Sign(QOverP) * ((1 - TMath::Cos(xBest)) * TMath::Sin(Phi) + TMath::Cos(Phi) * TMath::Sin(xBest))) / (MagneticField * pow(QOverP,2)));
+	jacobiPointOnHelix(1, 0) =  (TMath::Cos(Lambda) * Sign(QOverP) * (TMath::Cos(Phi) * (1 - TMath::Cos(xBest)) - TMath::Sin(Phi) * TMath::Sin(xBest))) / (MagneticField * pow(QOverP,2));
+	jacobiPointOnHelix(2, 0) =- ((xBest * TMath::Sin(Lambda)) / (MagneticField * pow(QOverP,2))) * Sign(QOverP);
+	// jacobiPointOnHelix(2, 0) =- ((xBest * TMath::Sin(Lambda)) / (MagneticField * pow(QOverP,2)));
+	// Lambda
+	jacobiPointOnHelix(0, 1) =- ((Sign(QOverP) * TMath::Sin(Lambda) * ((1 - TMath::Cos(xBest)) * TMath::Sin(Phi) + TMath::Cos(Phi) * TMath::Sin(xBest))) / (MagneticField * QOverP));
+	jacobiPointOnHelix(1, 1) =  (Sign(QOverP) * TMath::Sin(Lambda) * (TMath::Cos(Phi) * (1 - TMath::Cos(xBest)) - TMath::Sin(Phi) * TMath::Sin(xBest))) / (MagneticField * QOverP);
+	jacobiPointOnHelix(2, 1) =  (xBest * TMath::Cos(Lambda)) / (MagneticField * QOverP) * Sign(QOverP) + Dsz / TMath::Cos(Lambda) * TMath::Tan(Lambda);
+	// Phi
+	jacobiPointOnHelix(0, 2) = - (TMath::Cos(Phi) * Dxy) + (TMath::Cos(Lambda) * Sign(QOverP) * (TMath::Cos(Phi) * (1 - TMath::Cos(xBest)) - TMath::Sin(Phi) * TMath::Sin(xBest))) / (MagneticField * QOverP);
+	jacobiPointOnHelix(1, 2) = - (Dxy * TMath::Sin(Phi)) - (TMath::Cos(Lambda) * Sign(QOverP) * (-((1 - TMath::Cos(xBest)) * TMath::Sin(Phi)) - TMath::Cos(Phi) * TMath::Sin(xBest))) / (MagneticField * QOverP);
+	jacobiPointOnHelix(2, 2) = 0;
+	// dxy
+	jacobiPointOnHelix(0, 3) = - TMath::Sin(Phi);
+	jacobiPointOnHelix(1, 3) =   TMath::Cos(Phi);
+	jacobiPointOnHelix(2, 3) = 0;
+	// dsz
+	jacobiPointOnHelix(0, 4) = 0;
+	jacobiPointOnHelix(1, 4) = 0;
+	jacobiPointOnHelix(2, 4) = 1 / TMath::Cos(Lambda);
+
+	ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> pointOnHelixCovariance = jacobiPointOnHelix * helixCovariance * ROOT::Math::Transpose(jacobiPointOnHelix);
+
+	ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> jacobiIP;
+	// Derivative of the IP with respect to
+	// PointOnHelix
+	jacobiIP(0, 0) = 1;
+	jacobiIP(1, 1) = 1;
+	jacobiIP(2, 2) = 1;
+
+	ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> CovIP = jacobiIP * pointOnHelixCovariance * Transpose(jacobiIP);
+	return CovIP;
+}
+
+ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> ImpactParameter::CalculatePCACovariancePV(SMatrixSym3D primaryVertexCovariance)
+{
+	ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> jacobiIP;
+	// Derivative of the IP with respect to
+	// PointOnHelix
+	jacobiIP(0, 0) = -1;
+	jacobiIP(1, 1) = -1;
+	jacobiIP(2, 2) = -1;
+	ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> CovPV;
+	for(int i = 0; i < 3; i++){
+		for(int j = 0; j < 3; j++){
+			CovPV(i, j) = primaryVertexCovariance(i, j);
+		}
+	}
+	ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> CovIP = jacobiIP * CovPV * Transpose(jacobiIP);
+	return CovIP;
+}
 
 std::pair <TVector3, ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >>> ImpactParameter::CalculateIPandCovariance(double B, std::vector<float> h_param, RMPoint ref, RMPoint PrV, ROOT::Math::SMatrix<float,5,5, ROOT::Math::MatRepSym<float,5>> helixCov, SMatrixSym3D SigmaPrV)
 {
