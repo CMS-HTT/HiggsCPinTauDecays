@@ -8,13 +8,19 @@
 #include <TRandom.h>
 #include <TMath.h>
 #include <assert.h>
+#include "TVector3.h"
+#include <Math/SMatrix.h>
+
 
 class IpCorrection {
+
  public:
   IpCorrection(TString fileName);
   ~IpCorrection();
   double correctIp(int coordinate, double ip, double eta);
   double correctIp(int coordinate, double ip, double ipgen, double eta);
+  TVector3 correctIp(TVector3 ip, TVector3 ipgen, double eta);
+  ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> correctIpCov(ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> ipCov, double eta);
   enum Coordinate{Ipx=0, Ipy=1, Ipz=2};
 
  private:
@@ -40,15 +46,18 @@ class IpCorrection {
   TFile * file = nullptr;
   TH1D * histIpData[3][4];
   TH1D * histIpMC[3][4];
-  double normData[3][4];
-  double normMC[3][4];
+
+  TH1D * histErrData[3][4];
+  TH1D * histErrMC[3][4];
+
 
   std::vector<TString> IpNames = {"ipx","ipy","ipz"};
+  std::vector<TString> IpErrNames = {"ipxErr","ipyErr","ipzErr"};
   std::vector<TString> EtaNames;
   int nEtaBins;
   std::vector<double>  EtaRanges;
 
-
+  double applyQuantileMapping(TH1D * histMC, TH1D * histData, double var);
 
 };
 
