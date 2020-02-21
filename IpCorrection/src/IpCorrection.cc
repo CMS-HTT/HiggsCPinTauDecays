@@ -69,7 +69,7 @@ double IpCorrection::correctIp(int coor, double ip, double ipgen, double eta) {
 
 }
 
-ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >>  IpCorrection::correctIpCov(ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> ipCovariance, double eta) {
+CovMatrix IpCorrection::correctIpCov(CovMatrix ipCovariance, double eta) {
 
   double absEta = TMath::Abs(eta);
   int nEta = binNumber(absEta,EtaRanges);

@@ -11,6 +11,7 @@
 #include "TVector3.h"
 #include <Math/SMatrix.h>
 
+typedef ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> CovMatrix;
 
 class IpCorrection {
 
@@ -20,7 +21,7 @@ class IpCorrection {
   double correctIp(int coordinate, double ip, double eta);
   double correctIp(int coordinate, double ip, double ipgen, double eta);
   TVector3 correctIp(TVector3 ip, TVector3 ipgen, double eta);
-  ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> correctIpCov(ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> ipCov, double eta);
+  CovMatrix correctIpCov(CovMatrix ipCov, double eta);
   enum Coordinate{Ipx=0, Ipy=1, Ipz=2};
 
  private:
