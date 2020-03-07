@@ -1,0 +1,40 @@
+07/03/2020 
+
+lxplus783.cern.ch:/tmp/rasp/VBF_CP_mt_2016.root
+
+Sample : /VBFHToTauTauUncorrelatedDecay_Filtered_M125_TuneCUETP8M1_13TeV-powheg-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1
+
+* applied corrections
+  - tau ES shift as proposed by TauPOG
+  - recoil corrections to puppi MET
+  - IP and IP significance corrections
+  - JER smearing using hybrid method (determenistic 
+    seeding is used for stochastic smearing)
+
+* !!!! Tau is selected if MVA DM > -1 !!!!
+
+* New tau ID SF binned in MVA decay mode (from IC)
+* New tau trigger SF binned in MVA decay mode (from IC)
+
+* fastMTT is run and m_fast is saved in ntuple
+
+* added new variables
+  - ipx_1, ipy_1, ipz_1 - muon IP coordinates
+  - ipx_2, ipy_2, ipz_2 - pion IP coordinates
+  - ipsig_1 - IP significance of muon
+  - ipsig_2 - IP significance of pion
+  - acotautau_00 - phi(CP) IP-IP method
+  - acotautau_01 - phi(CP) IP-DP method (set to -9999 if tauDM==0)
+
+* trigger event weight is computed according to formula
+    weight = eff(data)/eff(MC) with
+    eff = eff(L) + (eff(l)-eff(L))*eff(tau),
+    where
+     o eff(L) - efficiency of the single muon trigger
+     o eff(l) - efficiency of lepton leg (mu) of the cross-trigger
+     o eff(tau) - efficiency of tau leg of the cross-trigger 
+  and saved in variable "trigweight"
+  
+* event is selected by requiring the OR of the 
+  single muon and mu+tau trigger paths matching with 
+  HLT objects within dR < 0.5
