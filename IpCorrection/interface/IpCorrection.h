@@ -22,6 +22,7 @@ class IpCorrection {
   double correctIp(int coordinate, double ip, double ipgen, double eta);
   TVector3 correctIp(TVector3 ip, TVector3 ipgen, double eta);
   CovMatrix correctIpCov(CovMatrix ipCov, double eta);
+  CovMatrix correctIpCov(CovMatrix ipCov, TVector3 ip, TVector3 ipgen, double eta);
   enum Coordinate{Ipx=0, Ipy=1, Ipz=2};
 
  private:
@@ -51,9 +52,12 @@ class IpCorrection {
   TH1D * histErrData[3][4];
   TH1D * histErrMC[3][4];
 
+  TH1D * histSigData[3][4];
+  TH1D * histSigMC[3][4];
 
   std::vector<TString> IpNames = {"ipx","ipy","ipz"};
   std::vector<TString> IpErrNames = {"ipxErr","ipyErr","ipzErr"};
+  std::vector<TString> IpSigNames = {"ipxSig","ipySig","ipzSig"};
   std::vector<TString> EtaNames;
   int nEtaBins;
   std::vector<double>  EtaRanges;

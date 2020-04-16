@@ -56,6 +56,23 @@ IpCorrection::IpCorrection(TString fileName) {
     }
   }
 
+  for (unsigned int i=0; i<IpSigNames.size(); ++i) {
+    for (unsigned int j=0; j<EtaNames.size(); ++j) {
+      TString histNameData = IpSigNames[i] + EtaNames[j] + "_data";
+      TString histNameMC   = IpSigNames[i] + EtaNames[j] + "_mc";
+      histSigData[i][j] = (TH1D*)file->Get(histNameData);
+      histSigMC[i][j]   = (TH1D*)file->Get(histNameMC);
+      if (histErrData[i][j]==NULL) {
+	std::cout << "ipCorrection: histogram " << histNameData << " does not exist" << std::endl;
+	exit(-1);
+      }
+      if (histErrMC[i][j]==NULL) {
+	std::cout << "ipCorrection: histogram " << histNameMC << " does not exist" << std::endl;
+	exit(-1);
+      }
+    }
+  }
+
 }
 
 IpCorrection::~IpCorrection() {
@@ -91,6 +108,44 @@ CovMatrix IpCorrection::correctIpCov(CovMatrix ipCovariance, double eta) {
   return ipCovCorrected;
 
 }
+
+CovMatrix IpCorrection::correctIpCov(CovMatrix ipCovariance,
+				     TVector3 ip,
+				     TVector3 ipgen,
+				     double eta) {
+
+  double absEta = TMath::Abs(eta);
+  int nEta = binNumber(absEta,EtaRanges);
+
+  double ipdif[3]; 
+  ipdif[0] = ip.X()-ipgen.X();
+  ipdif[1] = ip.Y()-ipgen.Y();
+  ipdif[2] = ip.Z()-ipgen.Z();
+
+  double err[3];
+  for (int i=0; i<3; ++i) { 
+    TH1D * histMC = histIpMC[i][nEta];
+    TH1D * histData = histIpData[i][nEta];
+    double ipcorr = applyQuantileMapping(histMC,histData,ipdif[i]); 
+    double ipsig = ipdif[i]/TMath::Sqrt(ipCovariance(i,i));
+    histMC = histSigMC[i][nEta];
+    histData = histSigData[i][nEta];
+    double ipsigcorr = applyQuantileMapping(histMC,histData,ipsig);
+    err[i] = ipcorr/ipsigcorr;
+    err[i] /= TMath::Sqrt(ipCovariance(i,i));
+  }
+  ROOT::Math::SMatrix<float,3,3, ROOT::Math::MatRepStd< float, 3, 3 >> ipCovCorrected;
+  for (int i=0; i<3; ++i) {
+    for (int j=0; j<3; ++j) {
+      ipCovCorrected(i,j) = err[i]*err[j]*ipCovariance(i,j);
+    }
+  }
+
+  return ipCovCorrected;
+
+}
+
+
 
 double IpCorrection::correctIp(int coor, double ip, double eta) {
 
