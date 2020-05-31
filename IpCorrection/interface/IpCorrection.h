@@ -28,19 +28,19 @@ class IpCorrection {
  private:
   int binNumber(double x, const std::vector<double> bins) const
   {
-    for (size_t iB=0; iB<bins.size(); ++iB)
-      if (x>=bins[iB]&&x<bins[iB+1])
+    int binN = bins.size() - 2;
+    for (size_t iB=0; iB<bins.size()-1; ++iB) {
+      if (x>=bins.at(iB)&&x<bins.at(iB+1)) 
 	return iB;
-    return 0;
+    }
+    return binN;
   }
 
   int binNumber(double x, int nbins, const double * bins) {
-    int binN = 0;
+    int binN = nbins - 1;
     for (int iB=0; iB<nbins; ++iB) {
-      if (x>=bins[iB]&&x<bins[iB+1]) {
-	binN = iB;
-	break;
-      }
+      if (x>=bins[iB]&&x<bins[iB+1]) 
+	return iB;
     }    
     return binN;
   }

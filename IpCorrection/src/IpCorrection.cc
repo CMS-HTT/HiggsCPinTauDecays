@@ -90,7 +90,13 @@ CovMatrix IpCorrection::correctIpCov(CovMatrix ipCovariance, double eta) {
 
   double absEta = TMath::Abs(eta);
   int nEta = binNumber(absEta,EtaRanges);
-
+  /*
+  std::cout << "absEta = " <<  absEta << "   nEta = " << nEta << std::endl;
+  for (unsigned int iEta=0; iEta<=EtaRanges.size()-1; ++iEta) {
+    std::cout << EtaRanges.at(iEta) << "  ";
+  }
+  std::cout << "    -> size : " << EtaRanges.size() << std::endl;
+  */
   double err[3];
   for (int i=0; i<3; ++i) {
     TH1D * histMC = histErrMC[i][nEta];
