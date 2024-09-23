@@ -62,11 +62,11 @@ IpCorrection::IpCorrection(TString fileName) {
       TString histNameMC   = IpSigNames[i] + EtaNames[j] + "_mc";
       histSigData[i][j] = (TH1D*)file->Get(histNameData);
       histSigMC[i][j]   = (TH1D*)file->Get(histNameMC);
-      if (histErrData[i][j]==NULL) {
+      if (histSigData[i][j]==NULL) {
 	std::cout << "ipCorrection: histogram " << histNameData << " does not exist" << std::endl;
 	exit(-1);
       }
-      if (histErrMC[i][j]==NULL) {
+      if (histSigMC[i][j]==NULL) {
 	std::cout << "ipCorrection: histogram " << histNameMC << " does not exist" << std::endl;
 	exit(-1);
       }
